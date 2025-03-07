@@ -1,0 +1,777 @@
+#Luisa Borriello Assignment 1
+
+# Download the current.csv file
+import pandas as pd
+
+# Load the dataset
+df = pd.read_csv('https://www.stlouisfed.org/-/media/project/frbstl/stlouisfed/research/fred-md/monthly/current.csv?sc_lang=en&hash=80445D12401C59CF716410F3F7863B64')
+
+# Display first rows and display dataframe info
+print(df.head())  
+print(df.info())
+
+# Clean the dataframe by removing the row with trasformation codes
+df_cleaned = df.drop(index=0)
+df_cleaned.reset_index(drop=True, inplace=True)
+df_cleaned
+
+#Display cleaned dataframe
+print(df_cleaned.head())
+print(df_cleaned)
+ 
+After having loaded the dataset and having manipulated the dataframe by removing the row with transformation codes, we find out with the code df_cleaned that the dataframe is 793 rows x 127 columns
+ 
+# Extract transformation codes from the first row and display the extracted transformation codes)
+transformation_codes = df.iloc[0, 1:].to_frame().reset_index()
+transformation_codes.columns = ['Series', 'Transformation_Code']
+print (transformation_codes.head())
+
+# Function to apply transformation based on the transformation code
+def apply_transformation(series, code):
+    if code == 1:
+        # No transformation
+        return series
+    elif code == 2:
+        # First difference
+        return series.diff()
+    elif code == 3:
+        # Second difference
+        return series.diff().diff()
+    elif code == 4:
+        # Log
+        return np.log(series)
+    elif code == 5:
+        # First difference of log
+        return np.log(series).diff()
+    elif code == 6:
+        # Second difference of log
+        return np.log(series).diff().diff()
+    elif code == 7:
+        # Delta (x_t/x_{t-1} - 1)
+        return series.pct_change()
+    else:
+        raise ValueError("Invalid transformation code")
+
+# Apply the transformations to each column in df_cleaned based on transformation_codes
+for series_name, code in transformation_codes.values:
+    df_cleaned[series_name] = apply_transformation(df_cleaned[series_name].astype(float), float(code))
+
+# Drop of the first two observations of the database which induces missing values such as the first observation has index 0
+df_cleaned = df_cleaned[2:]
+df_cleaned.reset_index(drop=True, inplace=True)
+df_cleaned.head()
+
+By using the code df_cleaned.head() we have got a 5 row x 127 columns
+
+# Use library matplotlib to plot
+import matplotlib.pyplot as plt         
+import matplotlib.dates as mdates       
+
+# Consider three series (INDPRO, CPIAUCSL, TB3MS and assign them names such as "Industrial Production")
+series_to_plot = ['INDPRO', 'CPIAUCSL', 'TB3MS']         
+series_names = ['Industrial Production',                 
+                'Inflation (CPI)',                        
+                '3-month Treasury Bill rate']            
+
+#Create a figure with subplots, which size is 8x15
+fig, axs = plt.subplots(len(series_to_plot), 1, figsize=(8, 15))       
+
+#Iterate over the selected series and plot each one
+for ax, series_name, plot_title in zip(axs, series_to_plot, series_names):
+
+#Check if the series exists in each series df_cleaned DataFrame columns
+    if series_name in df_cleaned.columns:                 
+
+        #Convert the sasdate column to datetime format               
+        dates = pd.to_datetime(df_cleaned['sasdate'], format='%m/%d/%Y') 
+
+        #Plot each series against the sasdate on the corresponding subplot
+        ax.plot(dates, df_cleaned[series_name], label=plot_title)        
+
+        #Format the x-axis to display ticks and label the x-axis with dates taken every five years
+        ax.xaxis.set_major_locator(mdates.YearLocator(base=5))           
+
+        ax.xaxis.set_major_formatter(mdates.DateFormatter('%Y'))       
+
+        # Title each subplot with the name of the economic indicator
+        ax.set_title(plot_title)               
+
+        # Label the x-axis “Year,” and the y-axis “Transformed Value,” to indicate that the data was transformed before plotting                         
+        ax.set_xlabel('Year')                                            
+        ax.set_ylabel('Transformed Value')   
+
+        # A legend is added to the upper left of each subplot for clarity
+        ax.legend(loc='upper left')                      
+
+        # Rotate the x-axis labels by 45 degrees to prevent overlap and improve legibility       
+        plt.setp(ax.xaxis.get_majorticklabels(), rotation=45, ha='right') 
+    else:
+        ax.set_visible(False)  
+
+# Adjustment of subplot parameters to give specified padding and avoid overlap
+plt.tight_layout() 
+
+# Display of the figure with his subplots
+plt.show()         
+
+# Passages to obtain matrix M
+Yraw = df_cleaned['INDPRO']   #this is p
+Xraw = df_cleaned[['CPIAUCSL', 'TB3MS']]   #this is h
+
+num_lags  = 4  
+num_leads = 1  
+
+X = pd.DataFrame()
+
+## Add the lagged values of Y
+col = 'INDPRO'
+for lag in range(0,num_lags+1):
+        
+        # Shift each column in the DataFrame and name it with a lag suffix
+        X[f'{col}_lag{lag}'] = Yraw.shift(lag)
+
+for col in Xraw.columns:
+    for lag in range(0,num_lags+1):
+      
+         # Shift each column in the DataFrame and name it with a lag suffix
+        X[f'{col}_lag{lag}'] = Xraw[col].shift(lag)
+
+# Add a column on ones (for the intercept)
+X.insert(0, 'Ones', np.ones(len(X)))
+
+# X is now a DataFrame
+X.head()
+
+# Creation of y (with missing values in h position)
+y = Yraw.shift(-num_leads)
+y
+
+# Save last row of X (converted to numpy) to construct the forecast
+X_T = X.iloc[-1:].values
+
+# Subset getting only rows of X and y from p+1 to h-1 and convert to numpy array
+y = y.iloc[num_lags:-num_leads].values
+X = X.iloc[num_lags:-num_leads].values
+
+X_T
+
+from numpy.linalg import solve
+# Estimate Beta by OLS
+beta_ols = solve(X.T @ X, X.T @ y)
+
+# Produce the one step ahead forecast and calculate % change month-to-month INDPRO
+forecast = X_T@beta_ols*100
+forecast_scaled = forecast * 100
+print("Forecast:", forecast)
+print("Forecast Scaled:", forecast_scaled)
+forecast
+
+#Calculate forecast given the dataframe
+def calculate_forecast(df_cleaned, p = 4, H = [1,4,8], end_date = '12/1/1999', target = 'INDPRO', xvars = ['CPIAUCSL', 'TB3MS']):
+    
+    # Subset df_cleaned to use only data up to end_date
+    rt_df = df_cleaned[df_cleaned['sasdate'] <= pd.Timestamp(end_date)]
+    
+    # Get the actual values of target at different steps ahead
+    Y_actual = []
+    for h in H:
+        os = pd.Timestamp(end_date) + pd.DateOffset(months=h)
+        Y_actual.append(df_cleaned[df_cleaned['sasdate'] == os][target]*100)
+
+    Yraw = rt_df[target]
+    Xraw = rt_df[xvars]
+
+    X = pd.DataFrame()
+   
+   #Add lagged values of Y
+    for lag in range(0,p):
+        
+        # Shift each column in the DataFrame and name it with a lag suffix
+        X[f'{target}_lag{lag}'] = Yraw.shift(lag)
+
+    for col in Xraw.columns:
+        for lag in range(0,p):
+            X[f'{col}_lag{lag}'] = Xraw[col].shift(lag)
+    
+    # Add a column on ones (for the intercept)
+    X.insert(0, 'Ones', np.ones(len(X)))
+    
+    # Save last row of X (converted to numpy)
+    X_T = X.iloc[-1:].values
+
+    # While the X will be the same, Y needs to be leaded differently
+    Yhat = []
+    for h in H:
+        y_h = Yraw.shift(-h)
+       
+        # Subset getting only rows of X and y from p+1 to h-1
+        y = y_h.iloc[p:-h].values
+        X_ = X.iloc[p:-h].values
+      
+        #Calculate beta by OLS
+        beta_ols = solve(X_.T @ X_, X_.T @ y)
+        
+        # Produce the one step ahead forecast and calculate % change month-to-month INDPRO
+        Yhat.append(X_T@beta_ols*100)
+
+    #Calculate forecsting error and return
+    return np.array(Y_actual) - np.array(Yhat)
+
+#Calculate real time error considering as end date 12/1/1999
+t0 = pd.Timestamp('12/1/1999')
+e = []
+T = []
+for j in range(0, 10):
+    t0 = t0 + pd.DateOffset(months=1)
+    print(f'Using data up to {t0}')
+    ehat = calculate_forecast(df_cleaned, p = 4, H = [1,4,8], end_date = t0)
+    e.append(ehat.flatten())
+    T.append(t0)
+
+# Create a pandas DataFrame from the list
+edf = pd.DataFrame(e)
+
+# Calculate the RMSFE, that is, the square root of the MSFE
+np.sqrt(edf.apply(np.square).mean())
+
+#Calculate real time errors by looping over the end date repeating the same progression of codes, starting from  the end date 1/1/2000
+def calculate_forecast(df_cleaned, p = 4, H = [1,4,8], end_date = '1/1/2000', target = 'INDPRO', xvars = ['CPIAUCSL', 'TB3MS']):
+    
+    rt_df = df_cleaned[df_cleaned['sasdate'] <= pd.Timestamp(end_date)]
+    
+    Y_actual = []
+    for h in H:
+        os = pd.Timestamp(end_date) + pd.DateOffset(months=h)
+        Y_actual.append(df_cleaned[df_cleaned['sasdate'] == os][target]*100)
+
+    Yraw = rt_df[target]
+    Xraw = rt_df[xvars]
+
+    X = pd.DataFrame()
+   
+    for lag in range(0,p):
+        
+        X[f'{target}_lag{lag}'] = Yraw.shift(lag)
+
+    for col in Xraw.columns:
+        for lag in range(0,p):
+            X[f'{col}_lag{lag}'] = Xraw[col].shift(lag)
+    
+    X.insert(0, 'Ones', np.ones(len(X)))
+    
+    X_T = X.iloc[-1:].values
+
+    Yhat = []
+    for h in H:
+        y_h = Yraw.shift(-h)
+       
+        y = y_h.iloc[p:-h].values
+        X_ = X.iloc[p:-h].values
+      
+        beta_ols = solve(X_.T @ X_, X_.T @ y)
+        
+        Yhat.append(X_T@beta_ols*100)
+
+    return np.array(Y_actual) - np.array(Yhat)
+
+#
+t0 = pd.Timestamp('1/1/2000')
+e = []
+T = []
+for j in range(0, 10):
+    t0 = t0 + pd.DateOffset(months=1)
+    print(f'Using data up to {t0}')
+    ehat = calculate_forecast(df_cleaned, p = 4, H = [1,4,8], end_date = t0)
+    e.append(ehat.flatten())
+    T.append(t0)
+
+edf = pd.DataFrame(e)
+
+np.sqrt(edf.apply(np.square).mean())
+
+#Calculate real time errors by looping over the end date, considering as end date 2/1/2000
+def calculate_forecast(df_cleaned, p = 4, H = [1,4,8], end_date = '2/1/2000', target = 'INDPRO', xvars = ['CPIAUCSL', 'TB3MS']):
+    
+    rt_df = df_cleaned[df_cleaned['sasdate'] <= pd.Timestamp(end_date)]
+    
+    Y_actual = []
+    for h in H:
+        os = pd.Timestamp(end_date) + pd.DateOffset(months=h)
+        Y_actual.append(df_cleaned[df_cleaned['sasdate'] == os][target]*100)
+
+    Yraw = rt_df[target]
+    Xraw = rt_df[xvars]
+
+    X = pd.DataFrame()
+   
+    for lag in range(0,p):
+        
+        X[f'{target}_lag{lag}'] = Yraw.shift(lag)
+
+    for col in Xraw.columns:
+        for lag in range(0,p):
+            X[f'{col}_lag{lag}'] = Xraw[col].shift(lag)
+    
+    X.insert(0, 'Ones', np.ones(len(X)))
+    
+    X_T = X.iloc[-1:].values
+
+    Yhat = []
+    for h in H:
+        y_h = Yraw.shift(-h)
+       
+        y = y_h.iloc[p:-h].values
+        X_ = X.iloc[p:-h].values
+      
+        beta_ols = solve(X_.T @ X_, X_.T @ y)
+        
+        Yhat.append(X_T@beta_ols*100)
+
+    return np.array(Y_actual) - np.array(Yhat)
+
+t0 = pd.Timestamp('2/1/2000')
+e = []
+T = []
+for j in range(0, 10):
+    t0 = t0 + pd.DateOffset(months=1)
+    print(f'Using data up to {t0}')
+    ehat = calculate_forecast(df_cleaned, p = 4, H = [1,4,8], end_date = t0)
+    e.append(ehat.flatten())
+    T.append(t0)
+
+edf = pd.DataFrame(e)
+
+np.sqrt(edf.apply(np.square).mean())
+
+#Calculate real time errors by looping over the end date, considering as end date 3/1/2000
+def calculate_forecast(df_cleaned, p = 4, H = [1,4,8], end_date = '3/1/2000', target = 'INDPRO', xvars = ['CPIAUCSL', 'TB3MS']):
+    
+    rt_df = df_cleaned[df_cleaned['sasdate'] <= pd.Timestamp(end_date)]
+    
+    Y_actual = []
+    for h in H:
+        os = pd.Timestamp(end_date) + pd.DateOffset(months=h)
+        Y_actual.append(df_cleaned[df_cleaned['sasdate'] == os][target]*100)
+
+    Yraw = rt_df[target]
+    Xraw = rt_df[xvars]
+
+    X = pd.DataFrame()
+   
+    for lag in range(0,p):
+        
+        X[f'{target}_lag{lag}'] = Yraw.shift(lag)
+
+    for col in Xraw.columns:
+        for lag in range(0,p):
+            X[f'{col}_lag{lag}'] = Xraw[col].shift(lag)
+    
+    X.insert(0, 'Ones', np.ones(len(X)))
+    
+    X_T = X.iloc[-1:].values
+
+    Yhat = []
+    for h in H:
+        y_h = Yraw.shift(-h)
+       
+        y = y_h.iloc[p:-h].values
+        X_ = X.iloc[p:-h].values
+      
+        beta_ols = solve(X_.T @ X_, X_.T @ y)
+        
+        Yhat.append(X_T@beta_ols*100)
+
+    return np.array(Y_actual) - np.array(Yhat)
+
+t0 = pd.Timestamp('3/1/2000')
+e = []
+T = []
+for j in range(0, 10):
+    t0 = t0 + pd.DateOffset(months=1)
+    print(f'Using data up to {t0}')
+    ehat = calculate_forecast(df_cleaned, p = 4, H = [1,4,8], end_date = t0)
+    e.append(ehat.flatten())
+    T.append(t0)
+
+edf = pd.DataFrame(e)
+
+np.sqrt(edf.apply(np.square).mean())
+
+
+#Calculate real time errors by looping over the end date, considering as end date 4/1/2000
+def calculate_forecast(df_cleaned, p = 4, H = [1,4,8], end_date = '4/1/2000', target = 'INDPRO', xvars = ['CPIAUCSL', 'TB3MS']):
+    
+    rt_df = df_cleaned[df_cleaned['sasdate'] <= pd.Timestamp(end_date)]
+    
+    Y_actual = []
+    for h in H:
+        os = pd.Timestamp(end_date) + pd.DateOffset(months=h)
+        Y_actual.append(df_cleaned[df_cleaned['sasdate'] == os][target]*100)
+
+    Yraw = rt_df[target]
+    Xraw = rt_df[xvars]
+
+    X = pd.DataFrame()
+   
+    for lag in range(0,p):
+        
+        X[f'{target}_lag{lag}'] = Yraw.shift(lag)
+
+    for col in Xraw.columns:
+        for lag in range(0,p):
+            X[f'{col}_lag{lag}'] = Xraw[col].shift(lag)
+    
+    X.insert(0, 'Ones', np.ones(len(X)))
+    
+    X_T = X.iloc[-1:].values
+
+    Yhat = []
+    for h in H:
+        y_h = Yraw.shift(-h)
+       
+        y = y_h.iloc[p:-h].values
+        X_ = X.iloc[p:-h].values
+      
+        beta_ols = solve(X_.T @ X_, X_.T @ y)
+        
+        Yhat.append(X_T@beta_ols*100)
+
+    return np.array(Y_actual) - np.array(Yhat)
+
+t0 = pd.Timestamp('4/1/2000')
+e = []
+T = []
+for j in range(0, 10):
+    t0 = t0 + pd.DateOffset(months=1)
+    print(f'Using data up to {t0}')
+    ehat = calculate_forecast(df_cleaned, p = 4, H = [1,4,8], end_date = t0)
+    e.append(ehat.flatten())
+    T.append(t0)
+
+edf = pd.DataFrame(e)
+
+np.sqrt(edf.apply(np.square).mean())
+
+#Calculate real time errors by looping over the end date, considering as end date 5/1/2000
+def calculate_forecast(df_cleaned, p = 4, H = [1,4,8], end_date = '5/1/2000', target = 'INDPRO', xvars = ['CPIAUCSL', 'TB3MS']):
+    
+    rt_df = df_cleaned[df_cleaned['sasdate'] <= pd.Timestamp(end_date)]
+    
+    Y_actual = []
+    for h in H:
+        os = pd.Timestamp(end_date) + pd.DateOffset(months=h)
+        Y_actual.append(df_cleaned[df_cleaned['sasdate'] == os][target]*100)
+
+    Yraw = rt_df[target]
+    Xraw = rt_df[xvars]
+
+    X = pd.DataFrame()
+   
+    for lag in range(0,p):
+        
+        X[f'{target}_lag{lag}'] = Yraw.shift(lag)
+
+    for col in Xraw.columns:
+        for lag in range(0,p):
+            X[f'{col}_lag{lag}'] = Xraw[col].shift(lag)
+    
+    X.insert(0, 'Ones', np.ones(len(X)))
+    
+    X_T = X.iloc[-1:].values
+
+    Yhat = []
+    for h in H:
+        y_h = Yraw.shift(-h)
+       
+        y = y_h.iloc[p:-h].values
+        X_ = X.iloc[p:-h].values
+      
+        beta_ols = solve(X_.T @ X_, X_.T @ y)
+        
+        Yhat.append(X_T@beta_ols*100)
+
+    return np.array(Y_actual) - np.array(Yhat)
+
+t0 = pd.Timestamp('5/1/2000')
+e = []
+T = []
+for j in range(0, 10):
+    t0 = t0 + pd.DateOffset(months=1)
+    print(f'Using data up to {t0}')
+    ehat = calculate_forecast(df_cleaned, p = 4, H = [1,4,8], end_date = t0)
+    e.append(ehat.flatten())
+    T.append(t0)
+
+edf = pd.DataFrame(e)
+
+np.sqrt(edf.apply(np.square).mean())
+
+#Calculate real time errors by looping over the end date, considering as end date 6/1/2000
+def calculate_forecast(df_cleaned, p = 4, H = [1,4,8], end_date = '6/1/2000', target = 'INDPRO', xvars = ['CPIAUCSL', 'TB3MS']):
+    
+    rt_df = df_cleaned[df_cleaned['sasdate'] <= pd.Timestamp(end_date)]
+    
+    Y_actual = []
+    for h in H:
+        os = pd.Timestamp(end_date) + pd.DateOffset(months=h)
+        Y_actual.append(df_cleaned[df_cleaned['sasdate'] == os][target]*100)
+
+    Yraw = rt_df[target]
+    Xraw = rt_df[xvars]
+
+    X = pd.DataFrame()
+   
+    for lag in range(0,p):
+        
+        X[f'{target}_lag{lag}'] = Yraw.shift(lag)
+
+    for col in Xraw.columns:
+        for lag in range(0,p):
+            X[f'{col}_lag{lag}'] = Xraw[col].shift(lag)
+    
+    X.insert(0, 'Ones', np.ones(len(X)))
+    
+    X_T = X.iloc[-1:].values
+
+    Yhat = []
+    for h in H:
+        y_h = Yraw.shift(-h)
+       
+        y = y_h.iloc[p:-h].values
+        X_ = X.iloc[p:-h].values
+      
+        beta_ols = solve(X_.T @ X_, X_.T @ y)
+        
+        Yhat.append(X_T@beta_ols*100)
+
+    return np.array(Y_actual) - np.array(Yhat)
+
+t0 = pd.Timestamp('6/1/2000')
+e = []
+T = []
+for j in range(0, 10):
+    t0 = t0 + pd.DateOffset(months=1)
+    print(f'Using data up to {t0}')
+    ehat = calculate_forecast(df_cleaned, p = 4, H = [1,4,8], end_date = t0)
+    e.append(ehat.flatten())
+    T.append(t0)
+
+edf = pd.DataFrame(e)
+
+np.sqrt(edf.apply(np.square).mean())
+
+#Calculate real time errors by looping over the end date, considering as end date 7/1/2000
+def calculate_forecast(df_cleaned, p = 4, H = [1,4,8], end_date = '7/1/2000', target = 'INDPRO', xvars = ['CPIAUCSL', 'TB3MS']):
+    
+    rt_df = df_cleaned[df_cleaned['sasdate'] <= pd.Timestamp(end_date)]
+    
+    Y_actual = []
+    for h in H:
+        os = pd.Timestamp(end_date) + pd.DateOffset(months=h)
+        Y_actual.append(df_cleaned[df_cleaned['sasdate'] == os][target]*100)
+
+    Yraw = rt_df[target]
+    Xraw = rt_df[xvars]
+
+    X = pd.DataFrame()
+   
+    for lag in range(0,p):
+        
+        X[f'{target}_lag{lag}'] = Yraw.shift(lag)
+
+    for col in Xraw.columns:
+        for lag in range(0,p):
+            X[f'{col}_lag{lag}'] = Xraw[col].shift(lag)
+    
+    X.insert(0, 'Ones', np.ones(len(X)))
+    
+    X_T = X.iloc[-1:].values
+
+    Yhat = []
+    for h in H:
+        y_h = Yraw.shift(-h)
+       
+        y = y_h.iloc[p:-h].values
+        X_ = X.iloc[p:-h].values
+      
+        beta_ols = solve(X_.T @ X_, X_.T @ y)
+        
+        Yhat.append(X_T@beta_ols*100)
+
+    return np.array(Y_actual) - np.array(Yhat)
+
+t0 = pd.Timestamp('7/1/2000')
+e = []
+T = []
+for j in range(0, 10):
+    t0 = t0 + pd.DateOffset(months=1)
+    print(f'Using data up to {t0}')
+    ehat = calculate_forecast(df_cleaned, p = 4, H = [1,4,8], end_date = t0)
+    e.append(ehat.flatten())
+    T.append(t0)
+
+edf = pd.DataFrame(e)
+
+np.sqrt(edf.apply(np.square).mean())
+
+#Calculate real time errors by looping over the end date, considering as end date 8/1/2000
+def calculate_forecast(df_cleaned, p = 4, H = [1,4,8], end_date = '8/1/2000', target = 'INDPRO', xvars = ['CPIAUCSL', 'TB3MS']):
+    
+    rt_df = df_cleaned[df_cleaned['sasdate'] <= pd.Timestamp(end_date)]
+    
+    Y_actual = []
+    for h in H:
+        os = pd.Timestamp(end_date) + pd.DateOffset(months=h)
+        Y_actual.append(df_cleaned[df_cleaned['sasdate'] == os][target]*100)
+
+    Yraw = rt_df[target]
+    Xraw = rt_df[xvars]
+
+    X = pd.DataFrame()
+   
+    for lag in range(0,p):
+        
+        X[f'{target}_lag{lag}'] = Yraw.shift(lag)
+
+    for col in Xraw.columns:
+        for lag in range(0,p):
+            X[f'{col}_lag{lag}'] = Xraw[col].shift(lag)
+    
+    X.insert(0, 'Ones', np.ones(len(X)))
+    
+    X_T = X.iloc[-1:].values
+
+    Yhat = []
+    for h in H:
+        y_h = Yraw.shift(-h)
+       
+        y = y_h.iloc[p:-h].values
+        X_ = X.iloc[p:-h].values
+      
+        beta_ols = solve(X_.T @ X_, X_.T @ y)
+        
+        Yhat.append(X_T@beta_ols*100)
+
+    return np.array(Y_actual) - np.array(Yhat)
+
+t0 = pd.Timestamp('8/1/2000')
+e = []
+T = []
+for j in range(0, 10):
+    t0 = t0 + pd.DateOffset(months=1)
+    print(f'Using data up to {t0}')
+    ehat = calculate_forecast(df_cleaned, p = 4, H = [1,4,8], end_date = t0)
+    e.append(ehat.flatten())
+    T.append(t0)
+
+edf = pd.DataFrame(e)
+
+np.sqrt(edf.apply(np.square).mean())
+
+#Calculate real time errors by looping over the end date, considering as end date 9/1/2000
+def calculate_forecast(df_cleaned, p = 4, H = [1,4,8], end_date = '9/1/2000', target = 'INDPRO', xvars = ['CPIAUCSL', 'TB3MS']):
+    
+    rt_df = df_cleaned[df_cleaned['sasdate'] <= pd.Timestamp(end_date)]
+    
+    Y_actual = []
+    for h in H:
+        os = pd.Timestamp(end_date) + pd.DateOffset(months=h)
+        Y_actual.append(df_cleaned[df_cleaned['sasdate'] == os][target]*100)
+
+    Yraw = rt_df[target]
+    Xraw = rt_df[xvars]
+
+    X = pd.DataFrame()
+   
+    for lag in range(0,p):
+        
+        X[f'{target}_lag{lag}'] = Yraw.shift(lag)
+
+    for col in Xraw.columns:
+        for lag in range(0,p):
+            X[f'{col}_lag{lag}'] = Xraw[col].shift(lag)
+    
+    X.insert(0, 'Ones', np.ones(len(X)))
+    
+    X_T = X.iloc[-1:].values
+
+    Yhat = []
+    for h in H:
+        y_h = Yraw.shift(-h)
+       
+        y = y_h.iloc[p:-h].values
+        X_ = X.iloc[p:-h].values
+      
+        beta_ols = solve(X_.T @ X_, X_.T @ y)
+        
+        Yhat.append(X_T@beta_ols*100)
+
+    return np.array(Y_actual) - np.array(Yhat)
+
+t0 = pd.Timestamp('9/1/2000')
+e = []
+T = []
+for j in range(0, 10):
+    t0 = t0 + pd.DateOffset(months=1)
+    print(f'Using data up to {t0}')
+    ehat = calculate_forecast(df_cleaned, p = 4, H = [1,4,8], end_date = t0)
+    e.append(ehat.flatten())
+    T.append(t0)
+
+edf = pd.DataFrame(e)
+
+np.sqrt(edf.apply(np.square).mean())
+
+#Calculate real time errors by looping over the end date, considering as end date 10/1/2000
+def calculate_forecast(df_cleaned, p = 4, H = [1,4,8], end_date = '10/1/2000', target = 'INDPRO', xvars = ['CPIAUCSL', 'TB3MS']):
+    
+    rt_df = df_cleaned[df_cleaned['sasdate'] <= pd.Timestamp(end_date)]
+    
+    Y_actual = []
+    for h in H:
+        os = pd.Timestamp(end_date) + pd.DateOffset(months=h)
+        Y_actual.append(df_cleaned[df_cleaned['sasdate'] == os][target]*100)
+
+    Yraw = rt_df[target]
+    Xraw = rt_df[xvars]
+
+    X = pd.DataFrame()
+   
+    for lag in range(0,p):
+        
+        X[f'{target}_lag{lag}'] = Yraw.shift(lag)
+
+    for col in Xraw.columns:
+        for lag in range(0,p):
+            X[f'{col}_lag{lag}'] = Xraw[col].shift(lag)
+    
+    X.insert(0, 'Ones', np.ones(len(X)))
+    
+    X_T = X.iloc[-1:].values
+
+    Yhat = []
+    for h in H:
+        y_h = Yraw.shift(-h)
+       
+        y = y_h.iloc[p:-h].values
+        X_ = X.iloc[p:-h].values
+      
+        beta_ols = solve(X_.T @ X_, X_.T @ y)
+        
+        Yhat.append(X_T@beta_ols*100)
+
+    return np.array(Y_actual) - np.array(Yhat)
+
+t0 = pd.Timestamp('10/1/2000')
+e = []
+T = []
+for j in range(0, 10):
+    t0 = t0 + pd.DateOffset(months=1)
+    print(f'Using data up to {t0}')
+    ehat = calculate_forecast(df_cleaned, p = 4, H = [1,4,8], end_date = t0)
+    e.append(ehat.flatten())
+    T.append(t0)
+
+edf = pd.DataFrame(e)
+
+np.sqrt(edf.apply(np.square).mean())
