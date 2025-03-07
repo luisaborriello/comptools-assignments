@@ -1,4 +1,4 @@
-#Luisa Borriello Assignment 1
+# Luisa Borriello Assignment 1
 
 # Download the current.csv file
 import pandas as pd
@@ -73,22 +73,22 @@ series_names = ['Industrial Production',
                 'Inflation (CPI)',                        
                 '3-month Treasury Bill rate']            
 
-#Create a figure with subplots, which size is 8x15
+# Create a figure with subplots, which size is 8x15
 fig, axs = plt.subplots(len(series_to_plot), 1, figsize=(8, 15))       
 
-#Iterate over the selected series and plot each one
+# Iterate over the selected series and plot each one
 for ax, series_name, plot_title in zip(axs, series_to_plot, series_names):
 
-#Check if the series exists in each series df_cleaned DataFrame columns
+# Check if the series exists in each series df_cleaned DataFrame columns
     if series_name in df_cleaned.columns:                 
 
-        #Convert the sasdate column to datetime format               
+        # Convert the sasdate column to datetime format               
         dates = pd.to_datetime(df_cleaned['sasdate'], format='%m/%d/%Y') 
 
-        #Plot each series against the sasdate on the corresponding subplot
+        # Plot each series against the sasdate on the corresponding subplot
         ax.plot(dates, df_cleaned[series_name], label=plot_title)        
 
-        #Format the x-axis to display ticks and label the x-axis with dates taken every five years
+        # Format the x-axis to display ticks and label the x-axis with dates taken every five years
         ax.xaxis.set_major_locator(mdates.YearLocator(base=5))           
 
         ax.xaxis.set_major_formatter(mdates.DateFormatter('%Y'))       
@@ -166,7 +166,7 @@ print("Forecast:", forecast)
 print("Forecast Scaled:", forecast_scaled)
 forecast
 
-#Calculate forecast given the dataframe
+# Calculate forecast given the dataframe
 def calculate_forecast(df_cleaned, p = 4, H = [1,4,8], end_date = '12/1/1999', target = 'INDPRO', xvars = ['CPIAUCSL', 'TB3MS']):
     
     # Subset df_cleaned to use only data up to end_date
@@ -274,7 +274,6 @@ def calculate_forecast(df_cleaned, p = 4, H = [1,4,8], end_date = '1/1/2000', ta
 
     return np.array(Y_actual) - np.array(Yhat)
 
-#
 t0 = pd.Timestamp('1/1/2000')
 e = []
 T = []
@@ -343,7 +342,7 @@ edf = pd.DataFrame(e)
 
 np.sqrt(edf.apply(np.square).mean())
 
-#Calculate real time errors by looping over the end date, considering as end date 3/1/2000
+# Calculate real time errors by looping over the end date, considering as end date 3/1/2000
 def calculate_forecast(df_cleaned, p = 4, H = [1,4,8], end_date = '3/1/2000', target = 'INDPRO', xvars = ['CPIAUCSL', 'TB3MS']):
     
     rt_df = df_cleaned[df_cleaned['sasdate'] <= pd.Timestamp(end_date)]
@@ -397,8 +396,7 @@ edf = pd.DataFrame(e)
 
 np.sqrt(edf.apply(np.square).mean())
 
-
-#Calculate real time errors by looping over the end date, considering as end date 4/1/2000
+# Calculate real time errors by looping over the end date, considering as end date 4/1/2000
 def calculate_forecast(df_cleaned, p = 4, H = [1,4,8], end_date = '4/1/2000', target = 'INDPRO', xvars = ['CPIAUCSL', 'TB3MS']):
     
     rt_df = df_cleaned[df_cleaned['sasdate'] <= pd.Timestamp(end_date)]
@@ -452,7 +450,7 @@ edf = pd.DataFrame(e)
 
 np.sqrt(edf.apply(np.square).mean())
 
-#Calculate real time errors by looping over the end date, considering as end date 5/1/2000
+# Calculate real time errors by looping over the end date, considering as end date 5/1/2000
 def calculate_forecast(df_cleaned, p = 4, H = [1,4,8], end_date = '5/1/2000', target = 'INDPRO', xvars = ['CPIAUCSL', 'TB3MS']):
     
     rt_df = df_cleaned[df_cleaned['sasdate'] <= pd.Timestamp(end_date)]
@@ -506,7 +504,7 @@ edf = pd.DataFrame(e)
 
 np.sqrt(edf.apply(np.square).mean())
 
-#Calculate real time errors by looping over the end date, considering as end date 6/1/2000
+# Calculate real time errors by looping over the end date, considering as end date 6/1/2000
 def calculate_forecast(df_cleaned, p = 4, H = [1,4,8], end_date = '6/1/2000', target = 'INDPRO', xvars = ['CPIAUCSL', 'TB3MS']):
     
     rt_df = df_cleaned[df_cleaned['sasdate'] <= pd.Timestamp(end_date)]
@@ -560,7 +558,7 @@ edf = pd.DataFrame(e)
 
 np.sqrt(edf.apply(np.square).mean())
 
-#Calculate real time errors by looping over the end date, considering as end date 7/1/2000
+# Calculate real time errors by looping over the end date, considering as end date 7/1/2000
 def calculate_forecast(df_cleaned, p = 4, H = [1,4,8], end_date = '7/1/2000', target = 'INDPRO', xvars = ['CPIAUCSL', 'TB3MS']):
     
     rt_df = df_cleaned[df_cleaned['sasdate'] <= pd.Timestamp(end_date)]
@@ -614,7 +612,7 @@ edf = pd.DataFrame(e)
 
 np.sqrt(edf.apply(np.square).mean())
 
-#Calculate real time errors by looping over the end date, considering as end date 8/1/2000
+# Calculate real time errors by looping over the end date, considering as end date 8/1/2000
 def calculate_forecast(df_cleaned, p = 4, H = [1,4,8], end_date = '8/1/2000', target = 'INDPRO', xvars = ['CPIAUCSL', 'TB3MS']):
     
     rt_df = df_cleaned[df_cleaned['sasdate'] <= pd.Timestamp(end_date)]
@@ -668,7 +666,7 @@ edf = pd.DataFrame(e)
 
 np.sqrt(edf.apply(np.square).mean())
 
-#Calculate real time errors by looping over the end date, considering as end date 9/1/2000
+# Calculate real time errors by looping over the end date, considering as end date 9/1/2000
 def calculate_forecast(df_cleaned, p = 4, H = [1,4,8], end_date = '9/1/2000', target = 'INDPRO', xvars = ['CPIAUCSL', 'TB3MS']):
     
     rt_df = df_cleaned[df_cleaned['sasdate'] <= pd.Timestamp(end_date)]
@@ -722,7 +720,7 @@ edf = pd.DataFrame(e)
 
 np.sqrt(edf.apply(np.square).mean())
 
-#Calculate real time errors by looping over the end date, considering as end date 10/1/2000
+# Calculate real time errors by looping over the end date, considering as end date 10/1/2000
 def calculate_forecast(df_cleaned, p = 4, H = [1,4,8], end_date = '10/1/2000', target = 'INDPRO', xvars = ['CPIAUCSL', 'TB3MS']):
     
     rt_df = df_cleaned[df_cleaned['sasdate'] <= pd.Timestamp(end_date)]
