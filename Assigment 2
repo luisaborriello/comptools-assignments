@@ -1,0 +1,624 @@
+# Luisa Borriello Assignment 2
+
+1) AUTOREGRESSIVE MODEL. Autoregressive model is one of the key simple models used in time series to predict a variable. I have a variable y_t, where t goes from 1 to T. My objective is to predict the variable in time t+1, t+2. I have to make predictions, to make forecast.
+In order to be able to predict the variable I have to construct a model in which I link past values of the variable to future variables. The very simple model is the autoregressive model ('regressive' as to do with the regression, and 'auto' has to do with the correlation on itlself). 
+Yt= c+ΦY_t-1+ε_t
+We make the assumption that Et, the error terms is a white noise between zero and sigma^2. AR (1) is an autoregressive, the variable yt is regressed on itself (1 is how many plugs I'm using of y). This model is useful:'
+1) because is simple; in AR (1) we have to estimate c, phy and sigma, there are only 3 parameters, while in AR (2) there are 4 parameters;'
+2) because is linear.
+
+y_t+1 = c*Φ_1*Y_T, while y_t+2= c+ Φ_1*Y_T + Φ_x*Y_T-1. 
+Supposing we know the parameters, I can construct a forecast, a prediction. The model is simple not only because is simple to write but is also simple to understand. Time series are correlated; the value of GDP growth this quarter is not very different from the GDP growth in the previous quarter.
+The white noise (assumption) says that the expected value of epsilon_t is equal to zero, the variance of epsilon_t is equal to sigma^2 and the covariance between epsilon_t and epsilon t-j is equal to zero for all j different from zero.
+Epsilon is assumed to be a variable in zero, constant variance (doesn't change over time), and is not gonna be correlated over time, there is no linear relationship between the epsilon. 
+Suppose you want to estimate B_0 and B_1 using the OLS, we create a vector y (y1,y2, y3...yn), and the matrix x, which first column vector is (1,1,1,1,1,) and the second one is (x1,x2,x3,x4,xn)
+In order to estimate the model, we minimize the sum of squared residuals, when the coefficient is Beta. Given Beta zero and beta 1, I can calculate the difference between y and the linear model. I'm gonna sum all these squared differences, squared residuals. 
+Beta hat OLS is a minimizer of this function; I'm gonna choose b1 and b2 in order to minimize this function. I'm gonna try different Betas, and my estimator are the betas that gonna put these sum of squared residuals as small as possible (least squared is the smallest squared). 
+I'm gonna pick the betas in such a way that I'm gonna pick the least squared residuals 90% of the routines, of the way we minimize function is using the necessary condition for a local minimum. '
+FOC about minimization problem is that the derivative of SSR (Beta) with respect to Beta is equal to zero. If you suppose you have a convex function, at minimum the tangent line of this point is gonna be flat.  Any stationary point, any points that are candidates to be a minimum should satisfy the sum squared residual equal to zero. 
+This is not a sufficient condition, it is necessary. The second order condition is that the second derivative of SSR should be positive. If I have a convex function the second derivative of a convex function is always positive, so the FOC is necessary and sufficient sufficient for finding a minimum.
+The sum squared of residual (Beta) is convex if ∑(x_i)^2≠0. In order to find the minimum, I'm gonna take the derivative with respect to β_0, take the derivative with respect to β_1, set the derivatives equal to zero and solve for Betas that satisfy these conditions.
+The FOC are ∑(y_i-B_0-B_1*x_i)=0, -2∑x_i(y_i,B_0-B_1*x_1)=0; these FOC are linear, means linear function of β_0 and β_1. I can easily solve them, I get β_0 and β_1. I can programm a computer to give me the minimun, I can solve the FOC and obtain a solution that minimizes my function. 
+If you suppose to have k+1 parameters to estimate β_0, still the function is convex; i should take k+1 derivatives, I should solve k+1 equations in order to find k+1 betas. We express this model in a metrix form; this model goes from 1 to n. y_i=B_0+B_1x_11+B_2x_21+B_K*xn_i+u_i=0; y_1= B_0+B_1*x_11+B_2x_21
+Y is a nx1 vector, X is (n*x(k+1)) vector, n is the number of observations and k is the number of variables, Beta is (k+1)*1. The sum of square residuals (B) is (y-x_b)(y-x_b)
+FOC: -2X'(Y-Xβ)=0, I must solve it for Beta. Setting it to zero I can remove the -2     X'Y-X'Xβ=0   X'Xβ=X'Y 
+Ax=b   This a K+1 equation, a system of linear equations, where X is the unknown (I have to solve for x). This system of linear equations has only 1 solution providing that this metrix is invertible
+X= A^-1*b (INVERTIBILITY OF A MATRIX)
+B̂ OLS= (X'X)^-1X'Y (OLS estimator)
+Not all problems are linear, can be reduced to simple formulas, the AR model is one of these cases; there are 2 ways in which we can estimate the parameters
+1) OLS
+2) requires a solver (to minimize the function)
+
+My objective function is y_t= c+Φ_1*y_t-1+Φ_2*Y_t-2+ε_t
+y is Tx1 vector (y1,y2,y3......yT)  In X we're gonna do a cut, I'm gonna only get the data that are not missing; when we do lags we lose observations. Is important to get data that are coherent with the lags that you have. u=(ε_1,ε_2......ε_T), u is a (T-2)x1 vector   
+Y= Xβ+u       β=(c,φ_1,φ_2) 
+This is a linear model, to estimate my coefficient I have the estimator.
+B̂ OLS= ((c,φ_1,φ_2)= (X'X)^-1*X'Y     (Bx1 vector)
+
+MAXIMUM LIKELIHOOD ESTIMATOR (Fisher). If I want to estimate a parameter and this parameter is going to have an effect on the distribution over time, the way we should estimate this parameter is by choosing it in such a way that is gonna maximise the probability of observing the data that I've actually observed 
+Suppose you have iid data (x1, x2,......xn) and I want to estimate μ= E(xi). Suppose that I'm willing to assume that xi is normal distributed xi∼N(μ,σ^2)
+x1, x2.....xn are the random variables. What is the probability of observing the data that I've actually observed?
+pi=(xi=μ1, x2=μ2,.......xn=μn)
+This probability cannot really be calculated because x is continuous, the way I can approximate this probability is by calculating the joint density of the data; since data is independent the joint density is the product of the density
+=max_μσ^2 π (from i=1 to n) 1/√2πσ exp (-1/2σ^2(xi-μ)^2)   DENSITY OF A NORMAL (ASSUMPTION OF NORMALITY)
+π is the product of this normal. This is the approximation for the probability of observing the data that I've observed; this probability depends on μ and σ^2; if you have to estimate μ and σ^2, you have to choose μ and σ^2 in such a way to maximise this probability, to maximise this function because maximising this function 
+is almost equivalent to maximise the probability of observing the data that I have actually observed. This is called maximum likelihood estimation. The estimator of μ and σ  are the problem of maximising with respect to μ and σ^2 this function. I'm maximising a concave function, so If I take the first derivative and I set the first 
+derivative equal to zero I'm gonna obtain my maximum likelihood estimator. 
+^μ= 1/n Σxi (sample mean)        ^σ^2= 1/n∑(from i=1 and n)(xi-x̄)^2  (sample variance)
+The maximum likelihood estimator is that the idea of maximising the probability of a certain data that I observe for this very simple problem gives us sample mean and sample variance.
+
+OPTIMIZATION PROBLEM. Suppose I have to minimize this function, min f(x), I have to choose x's in order to minimize this function. This function can be very complex; there is no hope that I can find a solution in closed form.
+In macroeconomics and, in general econometrics many functions are very complicated, there is no way to solve them by taking derivatives and analytical calculations.
+The complicated case is the constrained optimization problem; not only i want to minimize a function but I want to minimize a function subject to a series of inequality and equality constraints; min f(x) subject to gi(x)≤0  i=1,....n; hj(x)=0 J=1,....p
+
+UNCONSTRAINED PROBLEMS. Usually when we try to minimize a function we want to get the global minimum, instead if the function is not very well behaved, there is the guarantee that I get the local minimum, but there is no guarantee that I get the global minimum.
+We like to assume convexity, because if my functions are convex global and local minimum are gonna coincide. 
+
+In literature two things are important:
+1) GRADIENT: Since the function is in K variables, has k variables as an argument, the gradient is the vector of all the derivatives, of the derivative of the function with respect to x1, the derivative of the function with respect to x2 and so on (gradient of SSR, is a (K+1)x1 vector). The FOC is that the gradient must be equal to zero.
+2) HESSIAN: If the variable takes only 1 argument, then the second derivative is a number. The variable takes k arguments, the hessian is going to be a kxk matrix, where I have the derivative of f with respect to x1 and x1, the derivative with respect to x1 and x2, and all other combinations of second derivatives.
+
+ALGORITHMS TO MINIMIZE A FUNCTION. Suppose we have a function in which the minimum is in x*. We have to instruct the computer to do things in order to find the minimum. I want to be able to programm my function in Python or Julia. obf f(x) 
+Suppose I start in x0, the minimum is in x0, the derivative at x0, the slope is positive. Suppose that the computer is able to calculate the derivative of the function. A positive derivative means that if move a little bit on the right of x0, the value of f(x) is increasing, but if I move a little bit on the left the value of the function is going to decrease.  
+x1= x0-f'(x0); x2= x1-f'(x1) The derivative of the function in x2 is negatively sloped, that means that if I want to decrease the value of the function I have to move on the right.   x3= x2-f'(x2); I keep going until the derivative is zero, and I'm not going to move anymore. (DESCENT BASED ALGORITHM; I'm gonna use the derivative information in order to find a
+discent direction toward the minimum. 1) It's not clear that you always want to move the full derivative (the movement I'm doing from x0 to x1 is the full value of the derivative). May happen that the derivative is too big and I'm gonna jump from one point to the other and I never gonna get closer to this point. In reality, instead of doing the full step
+we have the parameter α between 0 and 1 (learning rate). If α is very close to zero I've to take very small steps toward the minimum. α is fixed (0,3), α is chosen by linesearch (you search for a value of α in which in each step you're decreasing the value of the function, you can choose the jump, the lenght of the step in such a way that the 
+function goes down, at any step the function is minimized. (GRADIENT DESCENT) α itself follows different values, for which α^J= γ^j-1 * γ^j-1. The value of α changes along the process, where γ is a number between 0 and 1. α tells me how big the step has to be, the derivative tells me the direction of the step (positive, negative). If the derivative is 0, I'm not 
+gonna move anymore, If I end up in places with 0 derivative this algorithm is gonna get stuck, because there is no step anymore. For that motive, the second derivative information will be useful. Here we assume that we know how to calculate the derivative of a function. The computer doesn't know how to calculate the derivative;'
+def f(x); Algorithms for f'(), algorithm for calculating the derivative
+1) NUMERICAL APPROXIMATION. Until 10 years ago it was the only way to approximate the derivative. f'(x)= lim (for h going to 0) (f(x+h)-f(x))/h= (f(x+h)-f(x))/h for timing h; percentage increase of the function; we increase by an infinitesimal ammount. We can approximate the derivative by calculating the function for timing h. Dividing something by a small number
+for h going to 0 generates computational problem, because I'm diving by something that potentially is gonna explode. The approximation is important because the derivative tells me what the direction is. If the argument of a function is only 1, there is no problem; there is a problem when there are a lot of different arguments.
+Figure 2. Absolute approximation error when the number of dimension increases. When the dimension is small, the approximation goes very well; once I increase the number of parameters, the errors start to increase. Computational time scales linearly with the number of dimensions.
+2) AUTOMATIC DERIVATIVE. A way that we have today, even if computers don't know anything about derivatives, to calculate no approximation but the true derivative of a function. (calculate true value without error in a very effcient way)
+Suppose we have the function log (x^2). The derivative is 1/x^2*∂x^2/ ∂x= log ∂(u)/ ∂u * ∂x^2/∂x (chain rule). If you have complex functions you can break the derivative into smaller pieces, and these smaller pieces are derivatives of simple functions. 
+Automatic differentiation makes possible estimating huge models, like LLM models where you have billions of parameters, and by using automatic derivatives you don't have problem of approximation and the computational requirement is relatively long (months); using others methods requires more time.
+Autograd is a package in python that you can use for automatic differentiation.
+    
+I have a function. We try to understand how our computer is able to minimize a function, what are the algorithms in order to minimize the function. I take the derivative at a point, and based on the sign of the derivative I try to move toward the minimum. I start from a point, I take the derivative, the derivative is positive; this means that I have to move on
+the left in order to minimize the function. Given the initial point, point t equal to t-1, the previous point, minus the derivative calculated at x_t-1 multiplied by α. x^(t)= x^(t-1)-α*f'(x(t-1)).
+In this case x^(0) is equal to 2 (starting point). Next point, x^(1)= x^(0)-αf'(x^(0))  Point 2, x^(2)= x^(1)-αf'(x^(1))...until the x doesn't change, the derivative is equal to 0, the point does not update; this means I found the minimum, the function is not gonna change. This is called gradient descent, with a learning rate α, a number that tries to dump the effect
+of the derivative; I need α because sometimes the derivative is so big; when I move along the way I make jumps, I start in a point where the derivative is positive, I jump in the next point where the derivative is negative, and then I jump again back. Going back and forth and I'm gonna miss the point. α should be less than 1 in order to cause smaller jumps to avoid 
+this jumping from one side to another. We fix α equal to 0.3 (GRADIENT DESCENT). All the way in which we move toward a descent direction is given by the derivative.
+All this algorithms does sophisticated stuff on the α size. If I'm very far away from the minimum, I want to run faster while If I'm close to the minimum I wanna take small jumps. there are algorithms that are gonna pick this α in a very clever way in order to be efficient and move with the right speed toward the minimum.
+
+One aspect of the implementation of any algorithm who tries to solve a function is to calculate the derivative
+1) Write down the derivative of the function. The alternative is called ANALYTIC GRADIENT (you do it for yourself)
+2) Either because you're lazy or because the function is very complicated, you don't wanna spend time to calculate the derivative or the probability of calculating the derivative and making a mistake is so high and is better to rely on a computer to calculate the derivative.
+
+APPROXIMATION OF THE FUNCTION. The derivative of the function x is the lim (for h going to 0) (f(x+h)-f(x))/h; I evaluate the function at x+h, i subtract the initial value and I divide by h, the increment (how much I change the function) (only for h very small). the derivative is the limit of this increment, when h goes to 0 (infinitesimal increment).
+Computers choose h very small. This approximation has several problems; when I divide by numbers that are very small, strange things can happen. Usually with a simple function in one dimension this is gonna work relatively well.
+There's a problem when the function is badly behaved, has many changes of signs, derivatives, has many arguments. All the application in econometrics is of function f, where x takes a value in R^(k), which takes a value in R; f(x): R^(k)➝ R. If I have 3 parameters, there are 3 x's, I need to take 3 different derivatives, I have to calculate 3 increments, where I only
+increment x1, I only increment x2, I only increment x3. I make a small error in calculating the derivative with respect to x1, make a small error in calculating the derivative with respect to x2, a small error in calculating the derivative with respect to x3; all this is gonna compound. 
+Figure 2. Error that I make when the number of dimensions of the function increases; when I increase the number of parameters, the error is going to be very big; If the error is big in the derivative, I'm calculating this derivative with an error; the derivative is positive, but instead I'm calculating a derivative to be negative, so I'm moving in the wrong direction,
+All this algorithms does sophisticated stuff on the α size. If I'm very far away from the minimum, I want to run faster while If I'm close to the minimum I wanna take small jumps. there are algorithms that are gonna pick this α in a very clever way in order to be efficient and move with the right speed toward the minimum.
+the algorithm is not gonna converge. Different algorithms choose alfa and the direction in a different way. Scipy is a library in Python in which you have scientific functions, methods. In scipy you have a module optimize, in which there are optimization routines. Scipy optimize is minimize. When we optimize a function, we always minimize a function. If we want
+to maximise a function, we have to define it as a negative of the original function. Minimize the minus function is equivalent to maximise the function.
+ 
+ASSIGNMENT. Estimate AR (2) by using maximum likelihood. 
+# Import libraries
+import numpy as np    #library in python to do linear algebra and numeric calculation
+import matplotlib.pyplot as plt
+
+# Definition of the function and its derivative
+def f(x):
+    return x**2 - np.log(x)
+
+def df(x):
+    return 2*x - 1/x
+
+# Connection of points of the function
+def connectpoints(x,y,p1,p2):
+    x1, x2 = x[p1], x[p2]
+    y1, y2 = y[p1], y[p2]
+    plt.plot([x1,x2],[y1,y2],'k-')
+
+# Inizializing gradient descent parameters (fix an initial point and the learning rate)
+x0 = 2     
+alpha = 0.3
+
+You should have an initial guess close to the minimum (this is difficult because you don't know where the minimum is). If you start close enough to the minimum you converge very fast, if you start far away away from the minimum you may have difficulties in converging. This algorithm tries to find the local minimum. In many applications in econometrics we have a good approximation to the minimum.
+
+# Gradient descent steps
+x1 = x0 - alpha * df(x0)
+x2 = x1 - alpha * df(x1)
+
+# Coordinates to plot the function
+x = np.linspace(-2.5, 2.5, 400)
+y = f(x)
+
+# Tangent line at x0 (y = m*x + b)
+
+# Creation of the plot
+plt.figure(figsize=(8, 5))
+plt.plot(x, y, label='f(x) = x^2')
+plt.scatter([x0, x1], [f(x0), f(x1)], color='red')  # Points
+
+# Plot the first tangent line (at x0)
+m = df(x0)
+b = f(x0) - m*x0
+tangent_line = m*x + b
+plt.plot(x, tangent_line, 'b--', label=f'Tangent at x0={x0}')
+
+# Plot first arrox (movement from x0 to x1)
+plt.arrow(x0, 0.4, x1-x0, 0.0, head_width=0.1, length_includes_head=True, color = 'r')
+
+# Plot the second tangent line at x1 
+m = df(x1) # compute the slope at x1
+b = f(x1) - m*x1 #Compute the y intercept
+tangent_line = m*x + b  #Equation of the tangent line
+plt.plot(x, tangent_line, 'b--', label=f'Tangent at x0={x1}', )   
+
+# Set the plot limits
+plt.ylim([-0.2,6])
+plt.xlim([-0.4,3])
+plt.plot(x, tangent_line, 'b--', label=f'Tangent at x0={x1}', )
+m = df(x0)
+b = f(x0) - m*x0
+tangent_line = m*x + b
+
+# Plot descent steps
+plt.scatter(x0, f(x0), color='green')  # Initial point
+plt.scatter(x1, f(x1), color='green')  # First descent step
+plt.scatter(x2, f(x2), color='green')  # Second descent step
+
+# Plot second arrow movement from x1 to x2
+plt.arrow(x1, 0., x2-x1, 0., head_width=0.1, length_includes_head=True, color = 'r')
+
+# Set labels
+plt.title('Gradient Descent on f(x)')
+plt.xlabel('x')
+plt.ylabel('f(x)')
+
+# Remotion of x-axis ticks
+plt.xticks([])  
+plt.xticks([x0, x1, x2], [r"$x^{(0)}$", r"$x^{(1)}$", r"$x^{(2)}$"])
+
+# Add a legend to a plot
+plt.grid(True)
+
+# Plot vertical dashed lines (connecting each descent step to the x-axis)
+plt.plot([x0, x0],[f(x0), 0],'g--')
+plt.plot([x1, x1],[f(x1), 0],'g--')
+plt.plot([x2, x2],[f(x1), 0],'g--')
+
+# Show the plot
+plt.show()
+
+# Import library
+from numpy import linalg as la
+
+# Definition of the function with its parameters
+def steepest_descent(f, gradient, initial_guess, learning_rate, num_iterations = 100, epsilon_g = 1e-07):
+
+    # Initialization of x, current guess for the minimum of the function
+    x = initial_guess
+
+    # Main iteration loop
+    for i in range(num_iterations):
+
+        # Compute the gradient
+        grad = gradient(x)
+
+        # Update the current guess x
+        x = x - learning_rate * grad
+
+        # Compute the norm of the gradient
+        normg = la.norm(grad)
+
+        # Print the iteration results
+        print(f"Iteration {i+1}: x = {x}, f(x) = {f(x)}, ||g(x)||={normg}")
+
+        # Termination condition
+        if  normg < epsilon_g:
+            break
+        
+        # Return the final result, the final optimized x
+    return x
+
+# Definition of the function f(x) = sum((x - 3)^2)
+def f(x):
+    return np.sum((x-3.0)**2)
+
+# Computation of the gradient of f(x)
+def gradient(x):
+    return 2*(x-3.0)
+
+# Steepest descent algorithm
+steepest_descent(f, gradient, np.array([0., 0.]), 0.2)
+
+function f(x)
+    sum((x.-3.0).^2)
+end
+
+function gradient(x)
+    2.*(x.-3.0)
+end
+
+steepest_descent(f, gradient, [.0, .0], 0.2)
+
+using FiniteDifferences
+
+# Create a central finite difference method with the default settings
+fdm = central_fdm(5, 1)
+
+# Calculate the gradient at a point
+x0 = [1.0, 2.0]
+gradient = grad(fdm, f, x0)
+
+println("Numerical Gradient:", gradient)
+
+using FiniteDifferences
+
+# Create a central finite difference method with the default settings
+fdm = central_fdm(5, 1)
+
+# Calculate the gradient at a point
+x0 = [1.0, 2.0]
+gradient = grad(fdm, f, x0)
+
+println("Numerical Gradient:", gradient)
+
+# Import the library
+import numpy as np
+from scipy.optimize import approx_fprime    # Library in which you have scientific functions
+
+epsilon = np.sqrt(np.finfo(float).eps)  
+
+# Point at which to calculate the gradient
+x0 = np.array([1.0, 2.0])
+
+# Calculate the gradient at the point x0
+gradient = approx_fprime(x0, f, epsilon)
+
+print("Gradient at x0:", gradient)
+
+# Import wrapped NumPy
+import autograd.numpy as np  
+
+ # Import the gradient function
+from autograd import grad   
+
+# Create a function that returns the derivative of f
+df = grad(f)
+
+# Evaluate the derivative at x = (0.2, 0.1)
+print("The derivative of f(x) at x = [0.2, 0.1] is:", df(np.array([0.2, 0.1])))
+
+# Import libriaries
+import numpy as np
+import matplotlib.pyplot as plt
+import time
+
+# Multivariate function
+def multivariate_function(x):
+    return np.sum(x**2 + np.sin(x))
+
+# Analytical derivative
+def analytical_derivative(x):
+    return 2*x + np.cos(x)
+
+# Finite difference derivative
+def finite_difference_derivative(f, x, h=1e-5):
+    # Compute the gradient of `f` at `x` using the central finite difference method
+    grad = np.zeros_like(x)
+    for i in range(len(x)):
+        x_plus = np.copy(x)
+        x_minus = np.copy(x)
+        x_plus[i] += h
+        x_minus[i] -= h
+        grad[i] = (f(x_plus) - f(x_minus)) / (2*h)
+    return grad
+
+# Range of dimensions and error analysis
+dimensions = range(1, 101)
+errors = []
+times = []
+
+# Loop over dimensions
+for dim in dimensions:
+    x = np.random.randn(dim)
+    
+    # Analytical derivative
+    true_grad = analytical_derivative(x)
+    
+    # Start timing
+    start_time = time.time()
+    
+    # Finite difference derivative
+    fd_grad = finite_difference_derivative(multivariate_function, x)
+    
+    # End timing
+    elapsed_time = time.time() - start_time
+    times.append(elapsed_time)
+    
+    # Error
+    error = np.linalg.norm(fd_grad - true_grad)
+    errors.append(error)
+
+# Plotting error
+plt.figure(figsize=(14, 6))  #Create a figure with with a size of 14x6 inches
+
+plt.subplot(1, 2, 1)  #Create a subplot for the error plot
+plt.plot(dimensions, errors, marker='o')  # Plot the error as a function of the number of dimensions, with a circle marker for each data point
+plt.xlabel('Number of Dimensions')
+plt.ylabel('Error')
+plt.title('Approximation Error by Dimension')
+plt.grid(True)
+
+This plot shows the change in the he error between the analytical and numerical gradients as the number of dimensions increases
+
+# Plotting computational time
+plt.subplot(1, 2, 2)
+plt.plot(dimensions, times, marker='o')   #Plot the error as a function of the number of dimensions, with a circle marker for each data point
+plt.xlabel('Number of Dimensions')   #Label x-axis 
+plt.ylabel('Time (seconds)')         #label y-axis
+plt.title('Computational Time by Dimension')  #Set the title of the plot
+plt.grid(True)  #Add a grid for better visualization
+
+plt.tight_layout()  #Ensure that the subplots don't overlap
+plt.show()   # Display the final plot
+
+This plot shows how the computational time increases as the number of dimensions grows
+
+#Import libraries
+import numpy as np
+from scipy.optimize import minimize
+
+# Initial guess for the minimum (point 0,0)
+initial_guess = np.array([0, 0])
+
+# Set the function that minimizes the function starting from the initial guess using the BFGS method (Broyden–Fletcher–Goldfarb–Shanno)(iterative optimization algorithm that uses an approximation to the inverse Hessian matrix to determine the step size and direction at each iteration. (very robust)
+result = minimize(f, initial_guess, method='BFGS')
+
+# Print results
+print("Optimal parameters:", result.x)   # Optimal parameters
+print("Minimum value:", result.fun)      # Minimum value of the function at the optimal parameters
+print("Success:", result.success)        # Success of the result
+print("Message:", result.message)        # Message giving details about optimization result
+
+Sometimes algorithms do not converge because:
+1) you made a mistake in the function
+2) the function is correct, but the derivative is not
+
+#Import library (import bounds on the optimization variables)
+from scipy.optimize import Bounds
+
+# Define bounds (0, +Inf) for all parameters
+bounds = Bounds(np.array([0., 0.]), [np.inf, np.inf])  # Lower bounds. x1 and x2 must be greater than or equal to 0 (no negative values)
+                                                       # There are not upper bounds for x1 and x2 (can go to infinite)
+
+# Run the optimization with bounds
+result_with_bounds = minimize(f, initial_guess, method='L-BFGS-B', bounds=bounds)   # Minimize the function considering the initial guess using the L-BFGS-B method (modification of the BFGS algorithm) (optimization algorithm that is an approximation to BFGS and can handle bound constraints on the variables) 
+
+# Print the results
+print("Minimum value:", result_with_bounds.fun)         # Minimum value
+print("Optimal parameters:", result_with_bounds.x)      # Optimal values of the parameters at the minimum                
+print("Success:", result_with_bounds.success)         # Success of the optimization
+print("Message:", result_with_bounds.message)   # Message giving details about the optimization process
+
+I have a time series (Industrial production), you have to take the log difference of the industrial production  log y_t-log y_t-1 (percentage change of industrial production). I want to model the log difference of industrial production as an autoregressive model of the second order
+This is a simple model because once I have c, φ_1, φ_2 (parameters) I can forecast the value of the industrial production. Y_T+1= c+φ_1*Y_t+φ_2*Y_T-1, where Y_T+1 is the prediction of the value of industrial production next year, is the linear combination of the past two values
+ε is the error, something that we cannot predict that adds randomness to the problem; once we do the forecast we don't consider it. (mean 0 and variance σ^2)
+AR (2) PROCESS. ASSUMPTION OF STATIONARITY (minimum assumption I need in order to be able to predict the future using observation of the past) Y_T is constant. If Y_T is stationary, c, φ_1, φ_2 have to satisfy these conditions: φ_2>-1 and φ_1+φ_2<1 and φ_2-φ_1<1
+The maximum likelihood tries to maximise the probability of observing data; this can be done if you have iid data. In this case data are not iid, Y_T depends on Y_T-1; iid means that Y_T is independent from Y_T-1
+In this case Y_T is a linear combination of Y_T-1, cannot be independent; instead of calculating the joint distribution we can calculate the conditional distribution. It is called conditional likelihood function, t starts at 3, I don't have observations conditional to the first 2 observations.
+The parameters I have to estimate are c, φ_1, φ_2, σ^2. I have to maximise the likelihood; instead of maximising the likelihood I maximise the log likelihood, the log is a monotonic transformation (the maximum of the function is the maximum of the monotonic transformation).
+Maximise the function is minimize the RSS with respect to c, φ_1, φ_2.
+
+# Import libraries
+import numpy as np
+from scipy.optimize import minimize
+from scipy.stats import norm
+
+# Log likelihood function
+def ar_likelihood(params, data, p):
+        
+    # Extract AR coefficients and noise variance from the parameters
+    c = params[0]  #Intersept (constant)
+    phi = params[1:p+1]   # AR coefficients from lag 1 to p
+    sigma2 = params[-1]   # Noise variance
+        
+    # Lenght of the time series
+    T = len(data)
+
+    # Calculate the residuals
+    residuals = data[p:] - c - np.dot(np.column_stack([data[p-j-1:T-j-1] for j in range(p)]), phi)
+    
+    # Calculate the negative log likelihood
+    log_likelihood = (-T/2 * np.log(2 * np.pi * sigma2) - np.sum(residuals**2) / (2 * sigma2))
+    
+    # Return negative log likelihood (equivalent to maximise the likelihood)
+    return -log_likelihood
+
+# Estimation of AR parameters using maximum likelihood estimation
+def estimate_ar_parameters(data, p):    #p is the order of AR (In this case is equal to 2)
+
+    In this case the likelihood is convex, all parameters are set to zero with the exception of the variance.
+    
+    # Initial guess for the parameters and variance (c = 0, phi_1, phi_2 = 0, sigma^2 = 1.0 (noise variance))
+    params_initial = np.zeros(p+2)
+    params_initial[-1] = 1.0
+
+    # Set the bounds for the parameters (value of c, phi_1, phi_2, sigma)
+    bounds = [(None, None)]  # Intercept c has no variance
+
+    # Bounds of AR coefficients (between -1 and 1) STATIONARY CONSTRAINT
+    bounds += [(-1, 1) for _ in range(p)]
+
+    # Bounds of variance parameter (positive)
+    bounds += [(1e-6, None)]
+
+    # Minimization of the negative log likelihood 
+    result = minimize(ar_likelihood, params_initial, args=(data, p), bounds=bounds)
+    
+    # Check if optimization was successful
+    if result.success:
+        estimated_params = result.x    #If the result.success is equal to true, the optimization succeded, the algorthm converges, the estimated parameter is equal to result.x (result.x contains the minimizer and returns the estimated parameters)
+        return estimated_params
+    else:                             #If the result did not succed there is a problem, the algorithm doesn't converge
+        raise Exception("Optimization failed:", result.message)
+
+# Example of random data
+data = np.random.randn(100)  # Generate 100 random data points, 100 observations from a normal distribution
+p = 2  # AR(2) model 
+params = estimate_ar_parameters(data, p)
+print("Estimated parameters:", params)
+
+Maximise this likelihood is equivalent to do the OLS
+
+# Import the library
+import numpy as np
+
+# Fit an AR model of order p using OLS (Ordinary Least Squares) (data: observed time series data, p: order of the AR model (number of lags).
+def fit_ar_ols_xx(data, p):
+    
+    # Prepare the lagged data matrix
+    T = len(data)
+    Y = data[p:]  # Dependent variable (from p to end)
+
+    #Create matrix x with lagged variables (X is the matrix of independent variables)
+    X = np.column_stack([data[p-i-1:T-i-1] for i in range(p)])    #Create lagged matrix
+    X = np.column_stack((np.ones(X.shape[0]), X))                 #Add intercept column (constant term)
+    
+    # Calculate OLS estimates using the formula: beta = (X'X)^-1 X'Y
+    XTX = np.dot(X.T, X)  # X'X
+    XTY = np.dot(X.T, Y)  # X'Y
+    beta_hat = np.linalg.solve(XTX, XTY)  # Solve (X'X)beta = X'Y
+    
+    return beta_hat
+
+# Estimate AR coefficients using OLS
+beta_hat = fit_ar_ols_xx(data, p)
+
+# Print Estimated AR coefficients
+print("Estimated AR coefficients:", beta_hat)
+
+# Import libraries
+import numpy as np
+from scipy import stats
+
+# Calculate exact log likelihood for an AR (2) process
+def ar2_exact_loglikelihood(params, y):
+    
+    # Extract parameters
+    c, phi1, phi2, sigma2 = params
+    
+    # Check stationarity conditions
+    if not (phi2 > -1 and phi1 + phi2 < 1 and phi2 - phi1 < 1):
+        return -np.inf  # Return negative infinity if not stationary
+    
+    For the AR model to be valid, the process needs to be stationary. This means that the autocovariances do not depend on time.For an AR(2) process, the stationarity conditions are:
+1) phi2 > -1: The second-order lag coefficient must be greater than -1.
+2) phi1 + phi2 < 1: The sum of the first and second-order lag coefficients must be less than 1.
+3) phi2 - phi1 < 1: The difference between the second and first lag coefficients must be less than 1.
+    If these conditions are violated, the model is not stationary, and we return negative infinity (-np.inf) to signal that this model is not valid for the given parameters.
+    
+    #Time series lenght check
+    T = len(y)
+    
+    if T < 3:
+        raise ValueError("Time series must have at least 3 observations for AR(2)")
+    
+    # Calculate the unconditional mean of the process
+    mu = c / (1 - phi1 - phi2)
+    
+    # Calculate autocovariances for stationary process
+    gamma0 = sigma2 / (1 - phi2**2 - phi1**2)  # Variance
+    gamma1 = phi1 * gamma0 / (1 - phi2)        # First-order autocovariance (measures the correlation between y[t] and y[t-1])
+    
+    # Create initial variance-covariance matrix (represents the covariance between the initial observations)
+    Sigma0 = np.array([[gamma0, gamma1],   (where gamma 0 is the variance of the time series and gamma 1 is the autocovariance between the time series and the first lag)
+                        [gamma1, gamma0]])
+    
+    # Calculate determinant of Sigma0
+    det_Sigma0 = gamma0**2 - gamma1**2
+
+If the determinant is less than or equal to zero, it means that the covariance matrix is not positive-definite, and the likelihood calculation would not be valid.
+    
+    # Check for positive definiteness
+    if det_Sigma0 <= 0:  
+        return -np.inf
+    
+    # Calculate inverse sigma
+    inv_Sigma0 = np.array([[gamma0, -gamma1], 
+                            [-gamma1, gamma0]]) / det_Sigma0
+
+The computation of inverse sigma is necessary to calculate the log-likelihood
+    
+    # Initial distribution contribution (Y1, Y2)
+    y_init = np.array([y[0], y[1]])
+    mu_init = np.array([mu, mu])
+    
+The log-likelihood includes a contribution from the initial values (y[0] and y[1]), which are assumed to come from a bivariate normal distribution with mean mu and covariance matrix Sigma0
+
+    diff_init = y_init - mu_init
+    quad_form_init = diff_init.T @ inv_Sigma0 @ diff_init
+
+    The quadratic form diff_init.T @ inv_Sigma0 @ diff_init calculates the Mahalanobis distance, which measures how far the initial values (y[0], y[1]) are from the mean mu, given the covariance matrix Sigma0.
+    
+    loglik_init = -np.log(2 * np.pi * np.sqrt(det_Sigma0)) - 0.5 * quad_form_init
+    
+    # Conditional log-likelihood contribution (Y3, ..., YT | Y1, Y2)
+    residuals = np.zeros(T-2)
+    for t in range(2, T):
+        y_pred = c + phi1 * y[t-1] + phi2 * y[t-2]
+        residuals[t-2] = y[t] - y_pred
+    
+    loglik_cond = -0.5 * (T-2) * np.log(2 * np.pi * sigma2) - \
+                   0.5 * np.sum(residuals**2) / sigma2
+    
+    # Total exact log-likelihood
+    exact_loglik = loglik_init + loglik_cond
+    
+    # Return the negative exactloglikelihood
+    return -exact_loglik
+
+# Import library
+from scipy import optimize
+
+# Function definition (estimation of the parameters of the AR process using MLE)
+def fit_ar2_mle(y, initial_params=None):
+    
+    # Set default initial parameters if not provided
+    if initial_params is None:
+      
+      # Simple initial estimates
+      c_init = 0.0  #Initial guess for the constant term
+      phi1_init = 0  #Initial guesses for the AR(1) and the AR (2) process
+      phi2_init = 0
+      sigma2_init = np.var(y)  #Initial guess for the variance of the errors is set to the variance of the time series data y
+      initial_params = (c_init, phi1_init, phi2_init, sigma2_init)
+
+      # Bounds for parameters
+    lbnds = (-np.inf, -0.99, -0.99, 1e-6)  # Lower bounds for parameters
+    ubnds = (np.inf, 0.99, 0.99, np.inf)     # Upper bounds for parameters
+
+    c has no bound (-np.inf to np.inf), phi1 and phi2 are bounded between -0.99 and 0.99 (to ensure stationarity of the AR(2) process), sigma2 is bounded to be positive, using 1e-6 as the lower bound for error variance to avoid zero variance.
+    
+    bnds = optimize.Bounds(lb=lbnds, ub=ubnds)  #function in SciPy is used to define these constraints for the optimization algorithm)
+    
+    # Optimization
+    result = optimize.minimize(        # Function used to minimize the negative log-likelihood of the AR(2) model)
+        ar2_exact_loglikelihood,       # Compute negative log-likelihood
+        initial_params,                # starting guess for the model parameters
+        (y,),                          # Time series data passed to the ar2_exact_loglikelihood function
+        bounds = bnds,                 # Bounds define before to ensure stationary and valid variance
+        method='L-BFGS-B',             # Usage of L-BFGS-B method, a quasi-Newton method that handles bound constraints
+        options={'disp': False}        # set to true to get more informations during optimization
+    )
+    
+    # Check if the optimization was succesfull
+    if not result.success:
+
+        # Display of the warning with the result message if the optimization did not converge 
+        print(f"Warning: Optimization did not converge. {result.message}")
+    
+    # Return estimated parameters and maximum log-likelihood (the function returns the estimated parameters that minimize the negative log-likelihood and the final value of the negative )
+    return result.x, result.fun   
+
+# Example usage
+Y = np.random.normal(size=(100,))   #synthetic time series Y of 100 data points from a normal distribution
+fit_ar2_mle(Y, initial_params=None)
+
+
+
