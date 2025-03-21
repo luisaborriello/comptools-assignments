@@ -99,9 +99,6 @@ ASSIGNMENT. Estimate AR (2) by using maximum likelihood.
 import numpy as np    #library in python to do linear algebra and numeric calculation
 import matplotlib.pyplot as plt
 
-# Load the dataset
-df = pd.read_csv('https://www.stlouisfed.org/-/media/project/frbstl/stlouisfed/research/fred-md/monthly/current.csv?sc_lang=en&hash=80445D12401C59CF716410F3F7863B64')
-
 # Definition of the function and its derivative
 def f(x):
     return x**2 - np.log(x)
@@ -413,6 +410,9 @@ import numpy as np
 from scipy.optimize import minimize
 from scipy.stats import norm
 
+# Load the dataset
+df = pd.read_csv('https://www.stlouisfed.org/-/media/project/frbstl/stlouisfed/research/fred-md/monthly/current.csv?sc_lang=en&hash=80445D12401C59CF716410F3F7863B64')
+
 # Log likelihood function
 def ar_likelihood(params, data, p):
         
@@ -622,6 +622,45 @@ def fit_ar2_mle(y, initial_params=None):
 # Example usage
 Y = np.random.normal(size=(100,))   #synthetic time series Y of 100 data points from a normal distribution
 fit_ar2_mle(Y, initial_params=None)
+
+# Import library
+import numpy as np
+
+# Compute log differences
+log_diff_indpro = np.diff(np.log(indpro_data))
+
+# Estimate AR parameters (e.g., AR(2) model)
+p = 2  # Example for AR(2)
+params = estimate_ar_parameters(log_diff_indpro, p)
+    
+    # Extract AR coefficients and variance
+    c = params[0]
+    phi = params[1:p+1]
+    sigma2 = params[-1]
+
+    forecast = []
+    for _ in range(forecast_steps):
+        # Get the most recent p data points
+        recent_data = data[-p:]
+        
+        # Forecast the next value using the AR model
+        forecast_value = c + np.dot(recent_data[::-1], phi)
+        
+        # Append the forecasted value
+        forecast.append(forecast_value)
+        
+        # Update the data with the forecasted value (for the next iteration)
+        data = np.append(data, forecast_value)
+
+    return forecast
+
+# Forecast the next 8 months
+forecast_steps = 8
+forecast_values = forecast_ar(params, log_diff_indpro, p, forecast_steps)
+
+# Print the forecasted values
+print("Forecasted values for the next 8 months:", forecast_values)
+
 
 
 
