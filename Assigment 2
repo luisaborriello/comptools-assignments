@@ -99,6 +99,9 @@ ASSIGNMENT. Estimate AR (2) by using maximum likelihood.
 import numpy as np    #library in python to do linear algebra and numeric calculation
 import matplotlib.pyplot as plt
 
+# Load the dataset
+df = pd.read_csv('https://www.stlouisfed.org/-/media/project/frbstl/stlouisfed/research/fred-md/monthly/current.csv?sc_lang=en&hash=80445D12401C59CF716410F3F7863B64')
+
 # Definition of the function and its derivative
 def f(x):
     return x**2 - np.log(x)
@@ -284,7 +287,7 @@ df = grad(f)
 # Evaluate the derivative at x = (0.2, 0.1)
 print("The derivative of f(x) at x = [0.2, 0.1] is:", df(np.array([0.2, 0.1])))
 
-# Import libriaries
+# Import libraries
 import numpy as np
 import matplotlib.pyplot as plt
 import time
