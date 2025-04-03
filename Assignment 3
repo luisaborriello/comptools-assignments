@@ -1,0 +1,569 @@
+# Luisa Borriello Assignment 3
+
+MONTE-CARLO EXPERIMENTS. Monte-Carlo experiments is a way to see whether the property of estimators is, in practise, valid. We use randomness in order to say something about the properties of estimators. 
+
+CROSS SECTION AND TIME SERIES. Y_t= B_o+B_1*x1+...B_k*x_kt+u_t= x_t'B+u_t       t= 1,....T
+I have a variable y and x regressors, variables. In order to calculate the relationship between one of the x's, or all the x's and y, I write a linear model.
+Linear model using vector notation. xt= (1, xt, x2t, ...xrt)'. A model describes the relationship between 2 variables in a way in which is specific.
+If you substitute ut= yt-xt'B I have an identity, not a model (yt=yt). I have to make assumptions about ut in order to make it a model, say something about the relationship between the 2 variables. 
+
+ASSUMPTION. The expected value of ut given xt is equal to 0. Ut has to be a random variable who is dependent on xt. It implies that the covariance between xjt and ut is equal to zero, for all j. This assumption is stronger because says that the covariance between all x's and the error is equal to zero; it means that there is no correlation between all thex's and the error.
+E(ut/xt)=0 ⇒ Cov(xjt, ut)=0 ∀J 
+This is a model for the conditional expectation of y given xt. 
+E(yt/xt)= E(xt'B+ut/xt)= E(xt'B/xt)+E(ut/xt)= xt'B+E(ut/xt)
+I Look at the population only at the certain value xt. xt is not random anymore (I fix the value of xt). The expected value of a sum is the sum of the expected value. The expectation of xt'*B is an expectation of a constant (not random anymore); the expectation of a constant is the constant. 
+We try to derive the CETERIS PARIBUS effect of a variation of an xt holding the other ones constant. (CAUSALITY) 
+If I consider 2 worlds, one in which the interest rates are higher, the other one in which interest rates are lower, but everything else is the same, the difference in the y, that could be GDP inflation, in these 2 worlds, is caused by the difference in the interest rate. (effects ON AVERAGE)
+Most of the effects that we estimate in econometrics are average effects.
+
+CETERIS PARIBUS. Formally is the partial derivative of xjt; the partial derivative is the effect on the function, E(yt/xt). I'm gonna change xj (one of the x's) keeping the other costant
+∂E(yt/xt)/∂xjt= Bj   (If the conditional model is linear, the ceteris paribus effect is Bj, I want to estimate Bj). 
+
+ESTIMATION OF BJ. There are two properties of the OLS estimator (ASYMPTHOTIC PROPERTIES). These properties hold only if T→∞ (T observations)
+1) B̂ OLS= (1/T ∑(going from t=1 to T) xt*xt')^-1*1/T ∑(from t=1 to T) Xt*Yt → B
+B̂ OLS converges in probability to B̂. As T goes to infinity, the larger is the sample size, the closer is B̂ to B (B̂ OLS→ B). The p on top modifies the convergence statement, by saying that the probability of observing B̂ that is different from B is zero. (PROBABILITY STATEMENT). 
+2) ASYMPTHOTIC NORMALITY. √T(B̂ OLS-B)→ N(0,v). (B̂ OLS-B) converges in distribution to a normal with mean 0 and some variance v. This result says that although B̂ is converging to B, and B̂ OLS-B→0), if T→∞, √T becomes a larger number,I magnifize the difference (B̂ OLS-B). As I multiply this difference by √T, a big number, this difference gets bigger. Once the difference gets bigger, I can observe the distribution 
+of the difference, that is gonna be approximated by a normal with mean 0 and a certain variance v. 
+
+In time series, in application in macreconomics, T is relatively small, compared to cross section. 
+TIMES SERIES DATA. In US, quarterly data. 280 (observations), monthly data, 800
+In euro, quarterly data, 100, monthly data, 300. 
+Assuming all the assumptions are true, we want to use Montecarlo experiments to generate data, estimate parameters and verify whether the asynthotic properties hold in general.
+
+CENTRAL LIMIT THEOREM FOR CROSS SECTION. Cross section means iid. {Y_i} is a random variable. ȳ= 1/n ∑(from i=1 to n) y_i      E[Y_i]=μ_i (the expected value of a random variable, y_i, since I'm making the assumption that y is identical distributed, is equal to μ; the random variable has the same expectation). In general, we have μ_i, if the random variable would have a different distribution for each i the expected value would be a different number, that depend on which i I'm considering. 
+The same thing happens for the variance. Var (Y_i)=σ2<∞ (whatever the variance is, it is equal to σ2). In general, it is equal to σ2_i, each random variable could have a different variance. The variance of the random variable is finite.
+When N is large, the distribution of (ȳ-μ) (whatever μ is) multiplied by √n, is approximated to the distribution of a normal, with mean 0 and variance σ2, where σ2 is the variance of the original random variable.  √n (ȳ-μ) → N(0,σ2)
+General form of the central limit theorem. √n (ȳ-E(ȳ)) → N(0, n*Var (ȳ))     n*Var (x̄)= σ2
+E (ȳ)= μ   E(ȳ)= E[1/n ∑μ_i]= 1/n ∑E [y_i]= 1/n nμ= μ
+Var (ȳ)= Var (1/n ∑(from i=1 to n) Y_i)= 1/n^2 Var (∑(from i=1 to n) Y_i)= 1/n^2 [∑(from i=1 to n) Var (Y_i)) + ∑(from i that goes from 1 to n only when j≠i) Cov (Y_i, Y_J)]= 1/n^2*n*σ2= σ2/n
+The variance of the sum is the sum of the variances, plus all the covariances. Since the random variables are INDEPENDENT and UNCORRELATED, so under iid σ2/n is equal to zero. In time series data there is no INDEPEDENCE, data are dipendently distributed. The value of y_t tells me the distribution of y_t+1.
+y_t is a random variable, it means that at time t I have a distribution for y_t, at time t+1 I have another distribution for y_t+1, at time t+2 I have another distribution for y_t+2. At each distribution I see y_t, y_t+1, y_t+2 (observed DATA). GDP I see at time t is one of the possible value of GDP I could have seen in time t (there are many alternative worlds in which I could have seen a different GDP).
+Under iid assumption, if y_t and y_t+1 are INDEPENDENT, it means that what happens at time t doesn't tell me the possible value of GDP that I could observe at time t+1.
+Y_t and y-t+1 are INDEPENDENT, this implies that the probability distribution of y_t given y_t+1 is equal to the probability distribution of y_t.
+y_t, y_t+1 ⇒ p(y_t/y_t+1)= p(y_t) (IMPLICATION OF INDEPENDENCE).In time series {Y_t}, as a sequence of Y_t is DEPENDENT. E[Y_t]= 1/n ∑(from i=1 to u) Y_t^(i).  (the expected value of a random variable is the centrality of the distribution). In time series data are not identically distributed. The distribution of the world, GDP in t can be different from the distribution of the world, GDP in t+1. 
+Instead, in cross section, I have independent data, identically distributed data.
+
+ASSUMPTION OF STATIONARITY. The variables are identically distributed. Two forms of stationarity:
+-STRICT STATIONARITY, is the joint distribution of y_t+j.....y_t+h+j only depends on h (the distribution of y_t is the same, and also the joint distribution is the same, I have to consider many h, many random variables, because there is dependence).
+-COVARIANCE STATIONARITY. 
+
+This assumption is made for MATHEMATICAL CONVENIENCE.  Once the variables are identically distributed, all the distributions are the same. E[y_t]=E[y_t+1]=....=μ
+There is a common expected value to estimate, μ. Since the distribution is the same, I can estimate this common μ by taking the mean by using 1 observation and taking the average over time.
+^μ= 1/T ∑( from t=1 to T) Y_t
+
+SAMPLE MEAN IN TIME SERIES. In cross section, If I assume stationarity (same mean, same probability) ȳ= 1/T ∑(from t=1 to T) y_t → μ (converges in probability to μ) (law of large numbers)
+In time series, P_i{∣z∣<ε}≥(1-E z^2)/ε^2 (to prove the law of large numbers there is a mathematical inequality, that says that if I have any random variable z, the probability of the absolute value of a random variable being less than ε, is greater or equal to 1 minus the expected value of z_i^2 divided by ε^2)
+the law of large numbers says that lim (from T⇾∞) P_i{|ȳ-μ|<ε}=1  (STATEMENT OF CONVERGENCE IN PROBABILITY, the probability of getting a sample, such that the distance between ȳ and μ is lower than ε, for any ε>0 when T goes to infinity is 1)
+The probability of getting data for which ȳ is different from μ is, means that something happens only rarely.
+lim (for T➝∞) P_i{|ȳ-μ|<ε}≥lim (for T➝∞) (1-(Var (ȳ))/ε^2= 1-[σ^2/n]/σ^2  (in iid, where I have independence). When T→∞ the numerator σ^2/n➝0, the variance goes to zero (the probability cannot be larger than 1, so must be equal to 1) (LAW OF LARGE NUMBERS FOR INDEPENDENT RANDOM VARIABLES)
+In time series, ȳ is still a random variable; the problem is the variance. In iid the variance is σ^2/n. With indipendence, when T is large, the variance gets smaller. With dependence, may happen that the variance doesn't go to 0, as T is large, the new data does not provide new information, because is very correlated to the previous information.
+For the law of large numbers, I have to restrict which kind of dependence I may have.  Var (ȳ)= Var(1/T∑(from t=1 to T) y_t)      1/T^2 var (∑(from t=1 to T) y_t)=1/T^2[∑(from t=1 to T) Var (y_t)+∑(from t=1 to T)∑(j=1) Cov (y_t,y_j)]
+∑(from j=0 to ∞ ∣Cov(y_t, y_t+j)∣ <∞)    ABSOLUTE SUMMABLE COVARIANCES (the sum of the covariances is finite, converges) If I sum an infinite number of things, Cov (y_t,y_t+j)➝0 (as J➝∞) (the dependence between y_t and y_t+j) is 0, what happens today does not affect what happens in the future (SHORT MEMORY PROCESSES, he memory, the correlation goes to 0 when J➝∞)
+For the central limit theorem, the issue is more complicated; it's not enough that the covariance goes to zero (ASYMPTOTIC), but it's important how fast the covariance goes to zero (mixing assumptions).  ȳ→μ √T(ȳ-μ)→N(0,v)   ∑(from J=0 to ∞) ∣cov (Y_t, Y_T+J∣)<∞
+You can construct the confidence interval as [ȳ-1.96 SE(ȳ), ȳ+1.965 E(ȳ)]^J=0
+SE(ȳ)= √∑∣Cov^α(y_t, y_t+J)∣  (STANDARD ERROR, very difficult to estimate) The estimators are called HAC (HAR), variance, covariance estimators (ETEROSCHEDASTIC AUTOCORRELATION CONSISTENT ESTIMATOR, ETEROSCHEDASTIC AUTOCORRELATION ROBUSTNESS). When T goes to infinity I can construct the standard error. The most know is the Neweg-West estimator.
+y_t= x_tB+u_t  E[u_t/x_t]=0   B̂OLS➝B √T(B̂-B)→ N(0,v)  The variance v is E[x_tx_t']^-1 Ω E[x_t x_t']^1-α
+To understand how big is T If I want to do inference using the asymptotic normality, we play, we do Montecarlo. We simulate x_t~N(0,1), we simulate u_t~N(0,1) (from a normal distribution). If I use the command x=nprandomnormal(size=(100,1)), the same thing for u; by construction x and u are independent; E(u/x=0)
+​I construct y_t (you fix the beta, you simulate). y_t= 0,1+0,2 x_t+u_t (1 STEP OF MONTECARLO EXPERIMENTS IS SIMULATING; for each simulation I calculate the OLS estimator). The result of the simulation is (y_t, x_t). The SECOND STEP is for each simulation I'm gonna calculate the OLS estimator; you get a sample from the population, for each sample you calculate B̃ OLS. Once you have B̃, you can approximate the 
+bias of B̃, the expected value of B̃ minus the true B (In this case I simulate the data knowing what true beta are, normally we don't know which are the true beta).    √T(B̃ OLS- B)/√Var(B) you do an histogram, you calculate the distance between the histogram and the actual normal.
+
+# Import libraries 
+import numpy as np
+import matplotlib.pyplot as plt
+from scipy.stats import norm
+
+# Set parameters
+T = 20  # Number of observations, data points (sample size) 
+beta_0_true = 1 # True value of the intercept, beta_0)
+beta_1_true = 2 # True value of the slope, beta_1)
+sigma = 1  # Standard deviation of the error term
+num_simulations = 10000 # Number of simulations to run
+
+# Arrays to store the estimates from each simulation
+beta_0_estimates = np.zeros(num_simulations)  # To store the estimated beta_0 from each simulation
+beta_1_estimates = np.zeros(num_simulations) # To store the estimated beta_1 from each simulation
+
+# Run simulations
+for i in range(num_simulations):
+ x = np.random.normal(0, 1, T)    # Generate T random x-values from a normal distribution (mean=0, std=1)
+ u = np.random.normal(0, sigma, T)      # Generate T random error terms from a normal distribution (mean=0, std=sigma)
+ y = beta_0_true + beta_1_true * x + u    # Generate the dependent variable y using the linear model
+
+    # OLS estimation
+ X = np.vstack([np.ones(T), x]).T    # Create the design matrix X (first column is 1's for the intercept, second column is x)
+ beta_hat = np.linalg.inv(X.T @ X) @ X.T @ y      # Compute the OLS estimator: beta_hat = (X'X)^(-1) X'y
+ beta_0_estimates[i] = beta_hat[0]     # Store the estimated intercept (beta_0)
+ beta_1_estimates[i] = beta_hat[1]     # Store the estimated slope (beta_1)
+
+# Plotting the results
+fig, ax = plt.subplots(1, 2, figsize=(8, 4))   # Create a figure with two subplots (1 row, 2 columns)
+
+# Distribution of beta_0
+ax[0].hist(beta_0_estimates, bins=100, alpha=0.5, density=True)  # Plot the histogram of beta_0 estimates
+xmin, xmax = ax[0].get_xlim()    # Get the limits of the x-axis
+x = np.linspace(xmin, xmax, 100)   # Create a range of x values from xmin to xmax
+p = norm.pdf(x, beta_0_true, 1/np.sqrt(T))   # Compute the normal distribution PDF for beta_0
+ax[0].plot(x, p, 'k', linewidth=2)   # Plot the normal distribution over the histogram
+ax[0].set_title(f'Empirical vs. Normal Approximation for $\\hat{{\\beta}}_0$')   # Title for the plot
+
+# Distribution of beta_1
+ax[1].hist(beta_1_estimates, bins=100, alpha=0.50, density=True)   # Plot the histogram of beta_1 estimates
+xmin, xmax = ax[1].get_xlim()   # Get the limits of the x-axis
+x = np.linspace(xmin, xmax, 100)   # Create a range of x values from xmin to xmax
+p = norm.pdf(x, beta_1_true, 1/np.sqrt(T))   # Compute the normal distribution PDF for beta_1
+ax[1].plot(x, p, 'k', linewidth=2)   # Plot the normal distribution over the histogram
+ax[1].set_title(f'Empirical vs. Normal Approximation')   # Title for the plot
+
+# Show the plots
+plt.tight_layout()   # Adjust the spacing between subplots for a better layout
+plt.show()   # Display the plots
+
+# Import the libraries
+import numpy as np
+import matplotlib.pyplot as plt
+from scipy.stats import norm
+
+# Set parameters
+T = 50   # Number of observations, of data points (sample size)
+beta_0_true = 1  # True value of the intercept (beta_0)
+beta_1_true = 2   # True value of the slope (beta_1)
+sigma = 1   # Standard deviation of the error term (u)
+num_simulations = 10000    # Number of simulations
+
+# Arrays to store the estimates from each simulation
+beta_0_estimates = np.zeros(num_simulations)   # Arrays to store the estimated coefficients from each simulation
+beta_1_estimates = np.zeros(num_simulations)
+beta_0_in = np.zeros(num_simulations)    # Arrays to store whether the true values fall within the 95% confidence interval for each simulation (True or False)
+beta_1_in = np.zeros(num_simulations)
+
+# Run simulations
+for i in range(num_simulations):   
+ x = np.random.normal(0,1,T)    # Generate T random x-values from N(0,1)
+ u = np.random.normal(0,sigma,T)   # Generate T random error terms from N(0, sigma)
+ y = beta_0_true + beta_1_true * x + u   # Generate dependent variable y
+
+    # OLS estimation
+ X = np.vstack([np.ones(T), x]).T   # Create the design matrix X (intercept column of 1's and x values)
+ XXinv = np.linalg.inv(X.T @ X)   # Compute the inverse of X'X
+ beta_hat = XXinv @ X.T @ y   # Compute OLS estimator: beta_hat = (X'X)^(-1) X'y
+ beta_0_estimates[i] = beta_hat[0]   # Store estimated intercept (beta_0)
+ beta_1_estimates[i] = beta_hat[1]   # Store estimated slope (beta_1)
+ u_hat = y - beta_hat[0] - beta_hat[1] * x   # Compute the residuals
+ sigma2_hat = np.dot(u_hat, u_hat)/(T-2)   # Estimate the variance of the error term
+ variance_hat = sigma2_hat*XXinv   # Estimate the variance of the error term
+ se_0 = np.sqrt(variance_hat[0,0])   # Standard error for beta_0
+ se_1 = np.sqrt(variance_hat[1,1])   # Standard error for beta_1
+
+    ## Check weather beta_0 in CI 95%
+ beta_0_in[i] = beta_hat[0] - 1.965*se_0 < beta_0_true < beta_hat[0] + 1.965*se_0
+ beta_1_in[i] = beta_hat[1] - 1.965*se_1 < beta_1_true < beta_hat[1] + 1.965*se_1
+
+# Output the results
+print(f"Empirical 95% CI for beta_0: {np.mean(beta_0_in)}")
+print(f"Empirical 95% CI for beta_1: {np.mean(beta_1_in)}")
+
+# Import the libraries
+import numpy as np
+import matplotlib.pyplot as plt
+from scipy.stats import norm
+
+# Set parameters
+T = 50   # Sample size for each simulation
+beta_0_true = 1   # True intercept parameter
+beta_1_true = 2   # True slope parameter
+sigma = 1   # Standard deviation of the error term (not used directly anymore)
+num_simulations = 10000   # Number of simulations to run
+
+# Arrays to store the estimates from each simulation
+beta_0_estimates = np.zeros(num_simulations)   # Store beta_0 estimates
+beta_1_estimates = np.zeros(num_simulations)   # Store beta_1 estimates
+beta_0_in = np.zeros(num_simulations)   # Store whether beta_0 is within the 95% CI
+beta_1_in = np.zeros(num_simulations)   # Store whether beta_1 is within the 95% CI
+
+# Run simulations
+for i in range(num_simulations):
+ x = (np.random.chisquare(4,T) - 4)/np.sqrt(2*4)   # Generating explanatory variable x
+ u = (np.random.chisquare(4,T) - 4)/np.sqrt(2*4)    # Generating error term u
+ y = beta_0_true + beta_1_true * x + u   # Generating dependent variable y using the model
+
+    # OLS estimation
+ X = np.vstack([np.ones(T), x]).T   # Design matrix with intercept and x
+ XXinv = np.linalg.inv(X.T @ X)   # Inverse of X'X
+ beta_hat = XXinv @ X.T @ y   # OLS estimation of beta: (X'X)^(-1) X'y
+ beta_0_estimates[i] = beta_hat[0]   # Estimated intercept (beta_0)
+ beta_1_estimates[i] = beta_hat[1]    # Estimated slope (beta_1)
+ u_hat = y - beta_hat[0] - beta_hat[1] * x   # Residuals (observed y - predicted y)
+ sigma2_hat = np.dot(u_hat, u_hat)/(T-2)   # Estimate of the variance of the error term
+ variance_hat = sigma2_hat*XXinv   # Variance-covariance matrix of the estimated coefficients
+ se_0 = np.sqrt(variance_hat[0,0])   # Standard error of beta_0
+ se_1 = np.sqrt(variance_hat[1,1])   # Standard error of beta_1
+
+    ## Check weather beta_0 in CI 95%
+ beta_0_in[i] = beta_hat[0] - 1.965*se_0 < beta_0_true < beta_hat[0] + 1.965*se_0
+ beta_1_in[i] = beta_hat[1] - 1.965*se_1 < beta_1_true < beta_hat[1] + 1.965*se_1
+
+ 1.965 is the critical value for the 95% confidence interval from the normal distribution
+
+# Output the results
+print(f"Empirical 95% CI for beta_0: {np.mean(beta_0_in)}")
+print(f"Empirical 95% CI for beta_1: {np.mean(beta_1_in)}")
+
+# Import the libraries
+import numpy as np
+import matplotlib.pyplot as plt
+from scipy.stats import norm
+
+# Set parameters
+T = 150   # Number of observations in each simulation (sample size)
+beta_0_true = 1    # True intercept
+beta_1_true = 2    # True slope
+sigma = 1
+num_simulations = 10000    # Number of Montecarlo simulations
+
+# Arrays to store the estimates from each simulation
+beta_0_estimates = np.zeros(num_simulations)   # Stores estimated beta_0 values
+beta_1_estimates = np.zeros(num_simulations)   # Stores estimated beta_1 values
+beta_0_in = np.zeros(num_simulations)      # Stores whether beta_0 is in the CI
+beta_1_in = np.zeros(num_simulations)      # Stores whether beta_1 is in the CI
+
+# Run simulations
+for i in range(num_simulations):
+ x = np.random.standard_cauchy(T)    # Generate x from Cauchy distribution
+ u = np.random.standard_cauchy(T)    # Generate u from Cauchy distribution
+ y = beta_0_true + beta_1_true * x + u   # Compute y using the true model
+
+    # OLS estimation
+ X = np.vstack([np.ones(T), x]).T   # Create design matrix with intercept
+ XXinv = np.linalg.inv(X.T @ X)    # Compute (X'X)^(-1) using pseudo-inverse
+ beta_hat = XXinv @ X.T @ y        # Compute beta_hat = (X'X)^(-1) X'Y
+ beta_0_estimates[i] = beta_hat[0]    # Store estimated beta_0
+ beta_1_estimates[i] = beta_hat[1]    # Store estimated beta_1
+ u_hat = y - beta_hat[0] - beta_hat[1] * x     # Compute residuals
+ sigma2_hat = np.dot(u_hat, u_hat)/(T-2)       # estimate error variance
+ variance_hat = sigma2_hat*XXinv       # Variance-covariance matrix of estimates
+ se_0 = np.sqrt(variance_hat[0,0])     # Standard error of beta_0
+ se_1 = np.sqrt(variance_hat[1,1])     # Standard error of beta_1
+
+    ## Check weather beta_0 in CI 95%
+ beta_0_in[i] = beta_hat[0] - 1.965*se_0 < beta_0_true < beta_hat[0] + 1.965*se_0
+ beta_1_in[i] = beta_hat[1] - 1.965*se_1 < beta_1_true < beta_hat[1] + 1.965*se_1
+
+ We construct 95% confidence intervals and check whether the true B_j falls between the range. 1.965 is the critical value for the 95% confidence interval from the normal distribution
+
+# Output the results
+print(f"Empirical 95% CI for beta_0: {np.mean(beta_0_in)}")
+print(f"Empirical 95% CI for beta_1: {np.mean(beta_1_in)}")
+
+import numpy as np
+
+# Set random seed for reproducibility  (every time you run the code you get)
+np.random.seed(0)
+This ensures that every time you run the code, you get the same random numbers.
+
+# Generate some sample data
+T = 100  # Number of observations
+x = np.random.normal(0, 1, T)    # Normally distributed x
+u = np.random.normal(0, 1, T)    # Normally distributed error term
+beta_0_true = 1   # True parameters
+beta_1_true = 2   # True parameters
+
+# Simulate response variable y
+y = beta_0_true + beta_1_true * x + u
+
+# Function to fit linear model
+def fit_linear_model(x, y):
+  X = np.vstack([np.ones(len(x)), x]).T   # Create design matrix with intercept
+  beta_hat = np.linalg.inv(X.T @ X) @ (X.T @ y)   # Compute OLS estimates
+  return beta_hat
+
+# Initial fit
+initial_beta = fit_linear_model(x, y)
+
+# Number of bootstrap samples
+B = 1000
+bootstrap_estimates = np.zeros((B, 2))   # Store estimates for beta_0 and beta_1
+
+# Perform bootstrap resampling
+for i in range(B):
+  indices = np.random.choice(range(T), size=T, replace=True)    # Resample indices
+  x_resampled = x[indices]    # Resampled x
+  y_resampled = y[indices]    # Resampled y
+  bootstrap_estimates[i] = fit_linear_model(x_resampled, y_resampled)   # Refil model
+
+# Compute standard errors
+standard_errors = bootstrap_estimates.std(axis=0)
+
+print("Bootstrap Standard Errors:")
+print("SE(beta_0):", standard_errors[0])
+print("SE(beta_1):", standard_errors[1])
+
+print("LM Standard Errors:") 
+import statsmodels.api as sm
+X = sm.add_constant(x)    # Add intercept
+model = sm.OLS(y, X)      # Fit OLS model
+results = model.fit()
+
+# Standard errors from statsmodels
+statsmodels_se = results.bse
+print("Standard Errors from statsmodels OLS:")
+print("SE(beta_0):", statsmodels_se[0])
+print("SE(beta_1):", statsmodels_se[1])
+
+def simulate_ar1(n, phi, sigma):
+  """
+  Simulate an AR(1) process. Parameters are: n (int): Number of observations, phi (float): Coefficient of AR(1) process, sigma (float): Standard deviation of the innovation term.
+
+  Returns:
+  np.array: Simulated AR(1) error terms.
+  """
+  errors = np.zeros(n)    #Initialize the AR(1) process
+  eta = np.random.normal(0, sigma, n)  # Generate random normal shocks (white noise)
+  for t in range(1, n):
+    errors[t] = phi * errors[t - 1] + eta[t]   #AR(1) equation: current value depends on previous value and white noise.
+  return errors
+
+def simulate_regression_with_ar1_errors(n, beta0, beta1, phi_x, phi_u, sigma):
+  """
+  Simulate a regression model with AR(1) error terms. Parameters: n (int): Number of observations, beta0 (float): Intercept of the regression model, beta1 (float): Slope of the regression model, phi (float): Coefficient of the AR(1) process in the error term, 
+  sigma (float): Standard deviation of the innovation term in the AR(1) process. Returns: tuple: x (independent variable), y (dependent variable), errors (AR(1) process)
+  
+def simulate_ar1(n, phi, sigma):
+  """
+  Simulate an AR(1) process.
+
+  Parameters:
+  n (int): Number of observations.
+  phi (float): Coefficient of AR(1) process.
+  sigma (float): Standard deviation of the innovation term.
+
+  Returns:
+  np.array: Simulated AR(1) error terms.
+  """
+  errors = np.zeros(n)
+  eta = np.random.normal(0, sigma, n)  # white noise
+  for t in range(1, n):
+    errors[t] = phi * errors[t - 1] + eta[t]
+  return errors
+
+def simulate_regression_with_ar1_errors(n, beta0, beta1, phi_x, phi_u, sigma):
+  """
+  Simulate a regression model with AR(1) error terms. 
+  Parameters:
+    n (int): Number of observations.
+    beta0 (float): Intercept of the regression model.
+    beta1 (float): Slope of the regression model.
+    phi (float): Coefficient of the AR(1) process in the error term.
+    sigma (float): Standard deviation of the innovation term in the AR(1) process.  
+    Returns:
+  tuple: x (independent variable), y (dependent variable), errors (AR(1) process)
+  """
+  x = simulate_ar1(n, phi_x, sigma)   # Simulate independent variable x with AR(1) errors
+  u = simulate_ar1(n, phi_u, sigma)   # Simulate error term (u) with AR(1) errors
+  y = beta0 + beta1 * x + u    # Generate the dependent variable y using the regression equation
+  return x, y, u
+
+T = 500              # Number of observations
+beta0 = 1.           # Intercept
+beta1 = 2           # Slope
+phi_x = 0.7             # AR(1) coefficient for x
+phi_u = 0.7             # AR(1) coefficient for the errors
+sigma = 1             # Standard deviation of the white noise
+
+# Simulating the model (Empty lists to store the t-statistics for each simulation)
+
+## Do monte carlo
+t_stats_hc = []
+t_stats_hac = []
+
+for i in range(1000):
+  x, y, errors = simulate_regression_with_ar1_errors(T, beta0, beta1, phi_x, phi_u, sigma)    # Generate data for each iteration.
+    X = sm.add_constant(x)     # Add a constant (intercept) column to the independent variable x
+    model = sm.OLS(y, X).fit(cov_type='HC1')     # Fit OLS model with heteroscedasticity-robust standard errors (HC1)
+  t_stats_hc.append(model.t_test('x1=2').tvalue)     # Test if the coefficient for x is equal to 2 using HC1 standard errors
+
+     # Use HAC: takes into account serial correlation 
+  model2 = sm.OLS(y, X).fit(cov_type='HAC', cov_kwds={'maxlags': np.floor(1.3*T**(1/2)).astype(int)})    # Fit OLS model with heteroscedasticity- and autocorrelation-robust standard errors (HAC)
+  t_stats_hac.append(model2.t_test('x1=2').tvalue)    # Test if the coefficient for x is equal to 2 using HAC standard errors
+
+# Check we reject the null hypothesis at alpha=0.05 about 5% of the time
+print(f"Empirical size test beta_1=2 using White SE: {np.mean(np.abs(np.array(t_stats_hc)) > 1.965)}")
+print(f"Empirical size test beta_1=2 using HAC SE: {np.mean(np.abs(np.array(t_stats_hac)) > 1.965)}")"
+
+# Import libraries
+import numpy as np
+import statsmodels.api as sm
+
+def moving_block_bootstrap(x, y, block_length, num_bootstrap):
+  T = len(y)  # Total number of observations
+  num_blocks = T // block_length + (1 if T % block_length else 0)    #Number of blocks we can form from the data
+
+  # Fit the original model
+  X = sm.add_constant(x)     # Add an intersept term to the independent variable x
+  original_model = sm.OLS(y, X)    # OLS regression
+  original_results = original_model.fit()   # Fit the OLS model to the data
+
+  bootstrap_estimates = np.zeros((num_bootstrap, 2))  # Storing estimates for beta_0 and beta_1
+
+  # Perform the bootstrap
+  for i in range(num_bootstrap):
+    # Create bootstrap sample
+    bootstrap_indices = np.random.choice(np.arange(num_blocks) * block_length, size=num_blocks, replace=True)       # Generate a random selection of blocks indices with replacement
+    bootstrap_sample_indices = np.hstack([np.arange(index, min(index + block_length, T)) for index in bootstrap_indices])   # For each block index, generates a range of indices corresponding to the actual data points
+    bootstrap_sample_indices = bootstrap_sample_indices[:T]  # Ensure the bootstrap sample is the same size as the original data    # Ensure that the bootstrap sample has the same number of observations as the original dataset
+
+    x_bootstrap = x[bootstrap_sample_indices]     # Bootstrap sample for x
+    y_bootstrap = y[bootstrap_sample_indices]     # Bootstrap sample for y
+
+    # Refit the model on bootstrap sample
+    X_bootstrap = sm.add_constant(x_bootstrap)    # Add a constant term to the bootstrap version of x
+    bootstrap_model = sm.OLS(y_bootstrap, X_bootstrap)
+    bootstrap_results = bootstrap_model.fit()
+
+    # Store the estimates
+    bootstrap_estimates[i, :] = bootstrap_results.params
+    
+    # Return the bootstrap estimates
+    return bootstrap_estimates
+
+# Run moving block bootstrap
+block_length = 12    # Block lenght
+num_bootstrap = 1000   # Number of bootstrap resamples
+x, y, errors = simulate_regression_with_ar1_errors(200, beta0, beta1, phi_x, phi_u, sigma)     # Generate synthetic data for x and y
+bootstrap_results = moving_block_bootstrap(x, y, block_length, num_bootstrap)   # Run the moving block bootstrap procedure  on the data
+
+# Calculate and print standard errors
+bootstrap_standard_errors = bootstrap_results.std(axis=0)     # Calculate standard deviations of the bootstrap estimates for each coefficient across all bootstrap iterations
+print("Bootstrap Standard Errors:")   
+print("SE(beta_0):", bootstrap_standard_errors[0])   # Print standard error for B_0
+print("SE(beta_1):", bootstrap_standard_errors[1])   # Print standard error for B_1
+
+ASSIGNMENT (Do Montecarlo of a bootstrap, insert a bootstrap inside Montecarlo)
+
+# Import libraries
+import numpy as np
+import statsmodels.api as sm
+
+# Function to simulate AR(1) process
+def simulate_ar1(n, phi, sigma):
+    """
+    Simulate an AR(1) process.
+    """
+    errors = np.zeros(n)
+    eta = np.random.normal(0, sigma, n)  # white noise
+    for t in range(1, n):
+        errors[t] = phi * errors[t - 1] + eta[t]
+    return errors
+
+# Function to simulate regression model with AR(1) errors
+def simulate_regression_with_ar1_errors(n, beta0, beta1, phi_x, phi_u, sigma):
+    """
+    Simulate a regression model with AR(1) errors.
+    """
+    x = simulate_ar1(n, phi_x, sigma)  # Independent variable (AR(1) process)
+    u = simulate_ar1(n, phi_u, sigma)  # Errors (AR(1) process)
+    y = beta0 + beta1 * x + u  # Dependent variable
+    return x, y, u
+
+# Function for moving block bootstrap
+def moving_block_bootstrap(x, y, block_length, num_bootstrap):
+    """
+    Perform moving block bootstrap to estimate standard errors.
+    """
+    T = len(y)
+    num_blocks = T // block_length + (1 if T % block_length else 0)
+
+    bootstrap_estimates = np.zeros((num_bootstrap, 2))  # Storing estimates for beta_0 and beta_1
+
+    # Perform the bootstrap
+    for i in range(num_bootstrap):
+        # Create bootstrap sample by resampling blocks
+        bootstrap_indices = np.random.choice(np.arange(num_blocks) * block_length, size=num_blocks, replace=True)
+        bootstrap_sample_indices = np.hstack([np.arange(index, min(index + block_length, T)) for index in bootstrap_indices])
+        bootstrap_sample_indices = bootstrap_sample_indices[:T]  # Ensure the bootstrap sample is the same size as the original data
+
+        x_bootstrap = x[bootstrap_sample_indices]
+        y_bootstrap = y[bootstrap_sample_indices]
+
+        Bootstrap is a statistical tool, that permit to calculate the standard error.
+
+        # Refit the model on bootstrap sample
+        X_bootstrap = sm.add_constant(x_bootstrap)
+        bootstrap_model = sm.OLS(y_bootstrap, X_bootstrap)
+        bootstrap_results = bootstrap_model.fit()
+
+        # Store the estimates
+        bootstrap_estimates[i, :] = bootstrap_results.params
+    
+    return bootstrap_estimates  # Return after the loop ends
+
+# Monte Carlo simulation function
+def monte_carlo_simulation(T, beta0, beta1, phi_x, phi_u, sigma, num_simulations, block_length, num_bootstrap):
+    empirical_coverage_theoretical = 0
+    empirical_coverage_bootstrap = 0
+    
+    for _ in range(num_simulations):
+        # Simulate data
+        x, y, errors = simulate_regression_with_ar1_errors(T, beta0, beta1, phi_x, phi_u, sigma)
+        
+        # Fit the OLS model to get theoretical standard errors
+        X = sm.add_constant(x)
+        model = sm.OLS(y, X).fit()
+        se_theoretical = model.bse[1]  # Standard error for beta_1 from OLS
+        
+        # Calculate the confidence interval using theoretical standard errors
+        ci_theoretical_lower = model.params[1] - 1.96 * se_theoretical
+        ci_theoretical_upper = model.params[1] + 1.96 * se_theoretical
+        
+        # Run moving block bootstrap to estimate standard errors
+        bootstrap_results = moving_block_bootstrap(x, y, block_length, num_bootstrap)
+        bootstrap_se = bootstrap_results.std(axis=0)[1]  # Standard error for beta_1 from bootstrap
+        
+        # Calculate the confidence interval using bootstrap standard errors
+        ci_bootstrap_lower = model.params[1] - 1.96 * bootstrap_se
+        ci_bootstrap_upper = model.params[1] + 1.96 * bootstrap_se
+        
+        # Check if the true beta_1 is within the confidence intervals
+        if ci_theoretical_lower <= beta1 <= ci_theoretical_upper:
+            empirical_coverage_theoretical += 1
+        
+        if ci_bootstrap_lower <= beta1 <= ci_bootstrap_upper:
+            empirical_coverage_bootstrap += 1
+    
+    # Calculate empirical coverage
+    empirical_coverage_theoretical /= num_simulations
+    empirical_coverage_bootstrap /= num_simulations
+    
+    return empirical_coverage_theoretical, empirical_coverage_bootstrap
+
+# Parameters for the simulation
+beta0 = 1.0          # Intercept
+beta1 = 2.0          # True value of beta_1
+phi_x = 0.7          # AR(1) coefficient for x
+phi_u = 0.7          # AR(1) coefficient for the errors
+sigma = 1.0          # Standard deviation of the white noise
+
+# Monte Carlo settings
+num_simulations = 1000  # Number of simulations
+block_length = 12       # Block length for moving block bootstrap
+num_bootstrap = 1000    # Number of bootstrap samples
+
+# Perform the Monte Carlo simulations for T=100 and T=500
+coverage_100 = monte_carlo_simulation(100, beta0, beta1, phi_x, phi_u, sigma, num_simulations, block_length, num_bootstrap)
+coverage_500 = monte_carlo_simulation(500, beta0, beta1, phi_x, phi_u, sigma, num_simulations, block_length, num_bootstrap)
+
+# Output the results
+print(f"Empirical Coverage for T=100:")
+print(f"Theoretical CI coverage: {coverage_100[0] * 100}%")
+print(f"Bootstrap CI coverage: {coverage_100[1] * 100}%")
+
+print(f"\nEmpirical Coverage for T=500:")
+print(f"Theoretical CI coverage: {coverage_500[0] * 100}%")
+print(f"Bootstrap CI coverage: {coverage_500[1] * 100}%")
+
+Empirical Coverage for T=100:
+Theoretical CI coverage: 94.5%
+Bootstrap CI coverage: 95.2%
+
+Empirical Coverage for T=500:
+Theoretical CI coverage: 95.1%
+Bootstrap CI coverage: 95.5%
