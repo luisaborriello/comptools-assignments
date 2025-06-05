@@ -1,6 +1,6 @@
 # Luisa Borriello Assignment 4
 
-DIFFERENCE BETWEEN AI AND MACHINE LEARNING: Artificial intelligence is a research project, started conducted in 1946, during the Second World War, with military application, while Machine learning is one of the approaches that was taken in order to try to make human a machine, a computer. It is a part of artificial intelligence, which 
+DIFFERENCE BETWEEN AI AND MACHINE LEARNING: Artificial intelligence is a research project, started to be conducted in 1946, during the Second World War, with military application, while Machine learning is one of the approaches that was taken in order to try to make human a machine, a computer. It is a part of artificial intelligence, which 
 acquires information; has to see, has to hear, has to smell and then has to process the informations and decide what to do. We can define machine learning (chat GPT) with a simple relationship. Y_i=f(x_1,….x_k )+u_i. I want to predict, know y, based on K characteristics. u_i is ineliminable error, is the error that I make in predicting y, 
 no matter how many x’s are used This function f is unknown, we have to estimate it, we have to learn it. “Estimating” in machine learning is to learn. This function in machine learning is called the machine, because you put the x’s into the machine, you put information, the machine elaborates these information and combine these information, and it gives you the y 
 We have 2 kinds of data:
